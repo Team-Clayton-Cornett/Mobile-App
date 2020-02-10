@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
 ThemeData getAppTheme() {
-  // TODO: Build actual app theme
   return ThemeData(
-    primarySwatch: Colors.blue,
+    primaryColor: Color.fromARGB(255, 79, 195, 247),
+    accentColor: Color.fromARGB(255, 255, 152, 0),
+    primaryTextTheme: TextTheme(
+      title: TextStyle(
+        color: Colors.white
+      ),
+    )
   );
 }
