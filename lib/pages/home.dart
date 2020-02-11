@@ -94,6 +94,51 @@ class _HomePageState extends State<HomePage> {
           );
         },
       ),
+
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: const <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'App Name',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+            ),
+            ListTile(
+              leading: Icon(Icons.report),
+              title: Text('Report'),
+            ),
+            ListTile(
+              leading: Icon(Icons.history),
+              title: Text('History'),
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text('Account'),
+            ),
+            ListTile(
+              leading: Icon(Icons.help),
+              title: Text('About'),
+            ),
+            ListTile(
+              leading: Icon(Icons.directions_run),
+              title: Text('Sign Out'),
+            ),
+          ],
+        ),
+      ),
+
     );
   }
 }
