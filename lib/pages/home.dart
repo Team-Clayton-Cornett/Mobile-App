@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:capstone_app/components/garageCard.dart';
 import 'package:capstone_app/components/handle.dart';
+import 'package:capstone_app/models/garage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -13,25 +16,45 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _bottomSheetExpanded = false;
+
   // Set the initial camera position to focus on Columbia
   CameraPosition _cameraPosition = CameraPosition(
       target: LatLng(38.939654, -92.327518),
-      zoom: 13.0
+      zoom: 14.0
   );
 
-  Completer<GoogleMapController> _controller = Completer();
-
   Set<Marker> _markers = Set<Marker>();
-
-  bool _bottomSheetExpanded = false;
 
   // TODO: Remove when actual probabilities are available
   Random random = Random();
   List<double> probabilities;
 
-  // TODO: Populate markers with LatLng coordinates of garages
+  List<Garage> _garages = List();
+
+  Completer<GoogleMapController> _controller = Completer();
+
   _HomePageState() {
-    probabilities = List.generate(50, (index) {return random.nextDouble();});
+    // Load garage list from JSON file and deserialize
+    rootBundle.loadString('assets/GarageCoordinates.json').then((json) {
+      List<dynamic> garageArray = jsonDecode(json);
+
+      for(Map<String, dynamic> garage in garageArray) {
+        Garage newGarage = Garage.fromJson(garage);
+
+        _garages.add(newGarage);
+
+        _markers.add(Marker(
+          markerId: MarkerId(newGarage.name),
+          position: newGarage.location,
+          infoWindow: InfoWindow(
+            title: newGarage.name,
+          ),
+        ));
+      }
+
+      probabilities = List.generate(_garages.length, (index) {return random.nextDouble();});
+    });
   }
 
   // Called when the Google Map has been successfully created
@@ -91,10 +114,10 @@ class _HomePageState extends State<HomePage> {
                 child: Container(
                   child: ListView.builder(
                     controller: scrollController,
-                    itemCount: 25,
+                    itemCount: _garages.length,
                     itemBuilder: (BuildContext context, int index) {
                       return GarageCard(
-                        name: "Garage $index",
+                        name: _garages[index].name,
                         ticketProbability: probabilities[index],
                       );
                     },

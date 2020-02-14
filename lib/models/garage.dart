@@ -20,7 +20,18 @@ class Garage {
     _ticketProbabilities = List.generate(7, (_) => List.generate(24 * 4, (_) => 0.0));
   }
 
-  // TODO: Add ability to construct from JSON
+  // TODO: Get enforcement start times and end times from JSON once it is made available
+  Garage.fromJson(Map<String, dynamic> json) :
+      name = json['name'],
+      location = LatLng(json['latitude'], json['longitude']),
+      enforcementStartTime = DateTime.now(),
+      enforcementEndTime = DateTime.now(),
+      enforcedOnWeekends = false {
+    // Initialise _ticketProbabilities as a list of 7 lists, each with 4 probability values for each hour in the day
+    // [[0.0, 0.0, ...], [0.0, 0.0, ...], ...]
+    _ticketProbabilities = List.generate(7, (_) => List.generate(24 * 4, (_) => 0.0));
+  }
+
   // TODO: Add ability to update/set probabilities from JSON
   // TODO: Add methods for updating/reading probabilities based on time
 }
