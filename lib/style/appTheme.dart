@@ -8,6 +8,10 @@ ThemeData getAppTheme() {
       title: TextStyle(
         color: Colors.white
       ),
+      body1: TextStyle(
+        color: Colors.black,
+        fontSize: 16.0
+      )
     )
   );
 }
