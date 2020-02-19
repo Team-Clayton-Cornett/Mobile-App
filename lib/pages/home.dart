@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:capstone_app/components/garageCard.dart';
+import 'package:capstone_app/components/garageListSearchDelegate.dart';
 import 'package:capstone_app/components/handle.dart';
 import 'package:capstone_app/models/garage.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,7 @@ class _HomePageState extends State<HomePage> {
   Completer<GoogleMapController> _controller = Completer();
 
   _HomePageState() {
+    // TODO: Move garage list loading into repository when it becomes available
     // Load garage list from JSON file and deserialize
     rootBundle.loadString('assets/GarageCoordinates.json').then((json) {
       List<dynamic> garageArray = jsonDecode(json);
@@ -78,6 +80,40 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Text("Home"),
+      centerTitle: false,
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(
+            Icons.search
+          ),
+          onPressed: () {
+            showSearch(
+                context: context,
+                delegate: GarageListSearchDelegate(
+                  garages: _garages,
+                  probabilities: probabilities
+                )
+            );
+          },
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.filter_list
+          ),
+          onPressed: () {
+            // TODO: Navigate to filter page
+          },
+        )
+      ],
+      iconTheme: IconThemeData(
+        color: Colors.white
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     BorderRadiusGeometry sheetRadius = BorderRadius.only(
@@ -86,9 +122,7 @@ class _HomePageState extends State<HomePage> {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Home"),
-      ),
+      appBar: _buildAppBar(),
       body: SlidingUpPanel(
         // Max height needs to be set to the total height of the page - the height of the toolbar - a bit of padding
         // If this is not set correctly the garage list will not be able to scroll to the bottom
@@ -101,30 +135,28 @@ class _HomePageState extends State<HomePage> {
           markers: _markers,
         ),
         panelBuilder: (ScrollController scrollController) {
-          return Column(
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Handle(
-                  height: 6.0,
-                  width: 45.0,
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  child: ListView.builder(
-                    controller: scrollController,
-                    itemCount: _garages.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return GarageCard(
-                        name: _garages[index].name,
-                        ticketProbability: probabilities[index],
-                      );
-                    },
-                  ),
-                ),
-              )
-            ],
+          return Container(
+            child: ListView.builder(
+              controller: scrollController,
+              itemCount: _garages.length + 1,
+              itemBuilder: (BuildContext context, int index) {
+                if (index == 0) {
+                  return UnconstrainedBox(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Handle(
+                        height: 6.0,
+                        width: 45.0,
+                      ),
+                    ),
+                  );
+                }
+                return GarageCard(
+                  name: _garages[index - 1].name,
+                  ticketProbability: probabilities[index - 1],
+                );
+              },
+            ),
           );
         },
       ),
