@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:capstone_app/components/clusterableMapMarker.dart';
 import 'package:capstone_app/components/garageCard.dart';
 import 'package:capstone_app/components/garageListSearchDelegate.dart';
 import 'package:capstone_app/components/handle.dart';
 import 'package:capstone_app/models/garage.dart';
+import 'package:fluster/fluster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -25,43 +27,72 @@ class _HomePageState extends State<HomePage> {
       zoom: 14.0
   );
 
-  Set<Marker> _markers = Set<Marker>();
+  final List<ClusterableMapMarker> _markers = List<ClusterableMapMarker>();
+
+  Set<Marker> _displayedMarkers = Set<Marker>();
 
   // TODO: Remove when actual probabilities are available
   Random random = Random();
   List<double> probabilities;
 
-  List<Garage> _garages = List();
+  final List<Garage> _garages = List();
 
-  Completer<GoogleMapController> _controller = Completer();
+  final Completer<GoogleMapController> _controller = Completer();
 
-  _HomePageState() {
+  // Handles clustering map markers when too many are too close together
+  Fluster<ClusterableMapMarker> fluster;
+
+  _HomePageState();
+
+  @override
+  initState() {
+    super.initState();
+
     // TODO: Move garage list loading into repository when it becomes available
     // Load garage list from JSON file and deserialize
     rootBundle.loadString('assets/GarageCoordinates.json').then((json) {
-      List<dynamic> garageArray = jsonDecode(json);
+      setState(() {
+        List<dynamic> garageArray = jsonDecode(json);
 
-      for(Map<String, dynamic> garage in garageArray) {
-        Garage newGarage = Garage.fromJson(garage);
+        for(Map<String, dynamic> garage in garageArray) {
+          Garage newGarage = Garage.fromJson(garage);
 
-        _garages.add(newGarage);
+          _garages.add(newGarage);
 
-        _markers.add(Marker(
-          markerId: MarkerId(newGarage.name),
-          position: newGarage.location,
-          infoWindow: InfoWindow(
-            title: newGarage.name,
-          ),
-        ));
-      }
+          _markers.add(ClusterableMapMarker(
+            name: newGarage.name,
+            position: newGarage.location
+          ));
+        }
 
-      probabilities = List.generate(_garages.length, (index) {return random.nextDouble();});
+        probabilities = List.generate(_garages.length, (index) {return random.nextDouble();});
+
+        // Initialize fluster
+        fluster = Fluster<ClusterableMapMarker>(
+            minZoom: 0,
+            maxZoom: 21,
+            radius: 150,
+            extent: 2048,
+            nodeSize: 64,
+            points: _markers,
+            createCluster: (BaseCluster cluster, double lng, double lat) {
+              return ClusterableMapMarker(
+                  name: cluster.id.toString(),
+                  position: LatLng(lat, lng),
+                  isCluster: cluster.isCluster,
+                  clusterId: cluster.id,
+                  pointsSize: cluster.pointsSize,
+                  childMarkerId: cluster.childMarkerId
+              );
+            }
+        );
+
+        _displayedMarkers = fluster
+            .clusters([-180, -85, 180, 85], _cameraPosition.zoom.floor())
+            .map((ClusterableMapMarker cluster) => cluster.toMarker())
+            .toSet();
+      });
     });
-  }
-
-  // Called when the Google Map has been successfully created
-  void _onMapCreated(GoogleMapController controller) {
-    _controller.complete(controller);
   }
 
   /// Called when the sliding bottom panel moves
@@ -95,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                 delegate: GarageListSearchDelegate(
                   garages: _garages,
                   probabilities: probabilities
-                )
+                ),
             );
           },
         ),
@@ -130,9 +161,23 @@ class _HomePageState extends State<HomePage> {
         borderRadius: sheetRadius,
         onPanelSlide: _onPanelSlide,
         body: GoogleMap(
-          onMapCreated: _onMapCreated,
+          onMapCreated: (controller) {
+            _controller.complete(controller);
+          },
+          onCameraMove: (position) {
+            if (_cameraPosition.zoom != position.zoom) {
+              setState(() {
+                _displayedMarkers = fluster
+                    .clusters([-180, -85, 180, 85], _cameraPosition.zoom.floor())
+                    .map((ClusterableMapMarker cluster) => cluster.toMarker())
+                    .toSet();
+              });
+            }
+
+            _cameraPosition = position;
+          },
           initialCameraPosition: _cameraPosition,
-          markers: _markers,
+          markers: _displayedMarkers,
         ),
         panelBuilder: (ScrollController scrollController) {
           return Container(
