@@ -30,6 +30,8 @@ dependencies:
 
   fluster: ^1.1.2
 
+  location: ^2.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

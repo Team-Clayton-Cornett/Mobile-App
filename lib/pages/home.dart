@@ -11,6 +11,7 @@ import 'package:fluster/fluster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class HomePage extends StatefulWidget {
@@ -27,8 +28,13 @@ class _HomePageState extends State<HomePage> {
       zoom: 14.0
   );
 
+  // Record the user's location if it is available
+  LatLng userLocation;
+
+  // List of markers for every garage on the map
   final List<ClusterableMapMarker> _markers = List<ClusterableMapMarker>();
 
+  // List of map markers that will actually be displayed, whether they are clusters or actual garage markers
   Set<Marker> _displayedMarkers = Set<Marker>();
 
   // TODO: Remove when actual probabilities are available
@@ -48,6 +54,14 @@ class _HomePageState extends State<HomePage> {
   initState() {
     super.initState();
 
+    Location().getLocation().then((LocationData location) {
+      setState(() {
+        userLocation = LatLng(location.latitude, location.longitude);
+
+        _sortGaragesByProximity();
+      });
+    });
+
     // TODO: Move garage list loading into repository when it becomes available
     // Load garage list from JSON file and deserialize
     rootBundle.loadString('assets/GarageCoordinates.json').then((json) {
@@ -64,6 +78,8 @@ class _HomePageState extends State<HomePage> {
             position: newGarage.location
           ));
         }
+
+        _sortGaragesByProximity();
 
         probabilities = List.generate(_garages.length, (index) {return random.nextDouble();});
 
@@ -93,6 +109,33 @@ class _HomePageState extends State<HomePage> {
             .toSet();
       });
     });
+  }
+
+  // Sorts the garage list by proximity to the user if both the garage list and the user location are available
+  // Has no effect otherwise.
+  void _sortGaragesByProximity() {
+    if (_garages.isNotEmpty && userLocation != null) {
+      _garages.sort((garage1, garage2) {
+        double latDist = garage1.location.latitude - userLocation.latitude;
+        double lngDist = garage1.location.longitude - userLocation.longitude;
+
+        double garage1Dist = sqrt(pow(latDist, 2) + pow(lngDist, 2));
+
+        latDist = garage2.location.latitude - userLocation.latitude;
+        lngDist = garage2.location.longitude - userLocation.longitude;
+
+        double garage2Dist = sqrt(pow(latDist, 2) + pow(lngDist, 2));
+
+        if (garage1Dist < garage2Dist){
+          return -1;
+        } else if (garage1Dist == garage2Dist) {
+          return 0;
+        }
+        else {
+          return 1;
+        }
+      });
+    }
   }
 
   /// Called when the sliding bottom panel moves
