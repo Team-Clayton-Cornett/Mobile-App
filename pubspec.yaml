@@ -28,9 +28,13 @@ dependencies:
 
   sliding_up_panel: ^1.0.0
 
+  flutter_secure_storage: ^3.3.1+1
+
   fluster: ^1.1.2
 
   location: ^2.4.0
+
+  http: ^0.12.0+4
 
 dev_dependencies:
   flutter_test:
