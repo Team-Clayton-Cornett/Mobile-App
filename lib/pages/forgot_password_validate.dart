@@ -21,13 +21,12 @@ class _ForgotPasswordValidatePageState extends State<ForgotPasswordValidatePage>
   String _error = '';
   TextStyle style = getAppTheme().primaryTextTheme.body1;
   TextEditingController _tokenController = new TextEditingController();
-  // TODO: create additional fields for further steps in forgot password steps
   final _formKey1 = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     final ForgotPasswordValidateArguments args = ModalRoute.of(context).settings.arguments;
-    // TODO: create back button
+    // TODO: update fields so they autofocus
 
     final tokenField = TextFormField(
       controller: _tokenController,

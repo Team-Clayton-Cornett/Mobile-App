@@ -25,8 +25,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     final ForgotPasswordArguments args = ModalRoute.of(context).settings.arguments;
-//    _emailController.text = args.email;
 
+    // TODO: update fields so they autofocus
     final emailField = TextFormField(
       controller: _emailController,
       obscureText: false,
