@@ -28,6 +28,8 @@ class _HomePageState extends State<HomePage> {
       zoom: 14.0
   );
 
+  Future<LocationData> locationFuture;
+
   // Record the user's location if it is available
   LatLng userLocation;
 
@@ -43,8 +45,6 @@ class _HomePageState extends State<HomePage> {
 
   final List<Garage> _garages = List();
 
-  final Completer<GoogleMapController> _controller = Completer();
-
   // Handles clustering map markers when too many are too close together
   Fluster<ClusterableMapMarker> fluster;
 
@@ -54,7 +54,10 @@ class _HomePageState extends State<HomePage> {
   initState() {
     super.initState();
 
-    Location().getLocation().then((LocationData location) {
+    // Save the location Future so its progress can be checked later
+    locationFuture = Location().getLocation();
+
+    locationFuture.then((LocationData location) {
       setState(() {
         userLocation = LatLng(location.latitude, location.longitude);
 
@@ -203,24 +206,32 @@ class _HomePageState extends State<HomePage> {
         maxHeight: MediaQuery.of(context).size.height - kToolbarHeight - 20,
         borderRadius: sheetRadius,
         onPanelSlide: _onPanelSlide,
-        body: GoogleMap(
-          onMapCreated: (controller) {
-            _controller.complete(controller);
-          },
-          onCameraMove: (position) {
-            if (_cameraPosition.zoom != position.zoom) {
-              setState(() {
-                _displayedMarkers = fluster
-                    .clusters([-180, -85, 180, 85], _cameraPosition.zoom.floor())
-                    .map((ClusterableMapMarker cluster) => cluster.toMarker())
-                    .toSet();
-              });
-            }
+        // Make sure that the user location request has been completed before creating the GoogleMap widget
+        // Otherwise, the map widget will not be created properly on iOS
+        body: FutureBuilder(
+          future: locationFuture,
+          builder: (BuildContext context, AsyncSnapshot<LocationData> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting){
+              return Container();
+            } else {
+              return GoogleMap(
+                onCameraMove: (position) {
+                  if (_cameraPosition.zoom != position.zoom) {
+                    setState(() {
+                      _displayedMarkers = fluster
+                          .clusters([-180, -85, 180, 85], _cameraPosition.zoom.floor())
+                          .map((ClusterableMapMarker cluster) => cluster.toMarker())
+                          .toSet();
+                    });
+                  }
 
-            _cameraPosition = position;
+                  _cameraPosition = position;
+                },
+                initialCameraPosition: _cameraPosition,
+                markers: _displayedMarkers,
+              );
+            }
           },
-          initialCameraPosition: _cameraPosition,
-          markers: _displayedMarkers,
         ),
         panelBuilder: (ScrollController scrollController) {
           return Container(
