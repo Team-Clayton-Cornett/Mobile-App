@@ -1,57 +1,37 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
+import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-
-class LoginReturnValue {
-  var errors;
-  var token;
-
-  LoginReturnValue({this.errors, this.token});
-}
-
-class SendAuthTokenReturnValue {
-  var errors;
-
-  SendAuthTokenReturnValue({this.errors});
-}
-
-class ValidateAuthTokenReturnValue {
-  var errors;
-  var attempts;
-
-  ValidateAuthTokenReturnValue({this.errors, this.attempts});
-}
-
-class ResetPasswordReturnValue {
-  var errors;
-  var attempts;
-  var email;
-  var token;
-
-  ResetPasswordReturnValue({this.errors, this.attempts, this.email, this.token});
-}
+import 'package:capstone_app/models/authentication.dart';
 
 class AuthService {
-  // Login
-  Future<LoginReturnValue> login({String email = '', String password = ''}) async {
-    // Check if already logged in
-    // Create storage
+  // Verify auth_token
+  Future<bool> verifyAuthToken() async {
     final storage = new FlutterSecureStorage();
 
-    // Read value
     String token = await storage.read(key: 'auth_token');
 
     if(token != null) {
-      return LoginReturnValue(token: token);
-    }
+      final response = await http.post(
+        'https://claytoncornett.tk/api/user/verify/',
+        headers: {HttpHeaders.authorizationHeader: "Token $token"}
+      );
 
-    if(email == '' && password == '') {
-      return LoginReturnValue(errors: ['User not currently logged in']);
-    }
+      if(response.statusCode == 200) {
+        return true;
+      }else {
+        storage.delete(key: 'auth_token');
 
-    // If not already logged in..
+        return false;
+      }
+    }else {
+      return false;
+    }
+  }
+
+  // Login
+  Future<AuthArguments> login(String email, String password) async {
     Map<String, String> requestBody = new Map<String, String>();
     requestBody['username'] = email;
     requestBody['password'] = password;
@@ -61,9 +41,10 @@ class AuthService {
 
     if(response.statusCode == 200) {
       final token = responseBody['token'];
+      final storage = FlutterSecureStorage();
       storage.write(key: 'auth_token', value: token);
 
-      return LoginReturnValue(token: token);
+      return AuthArguments(token: token);
     } else {
       var errors = [];
       var errorKeys = ['email', 'password', 'non_field_errors'];
@@ -74,11 +55,44 @@ class AuthService {
         }
       });
 
-      return LoginReturnValue(errors: errors);
+      return AuthArguments(errors: errors);
     }
   }
 
-  Future<SendAuthTokenReturnValue> sendAuthToken({String email = ''}) async {
+  Future<AuthArguments> createAccount(String email, String firstName, String lastName, String phone, String password, String password2) async {
+    Map<String, String> requestBody = new Map<String, String>();
+    requestBody['email'] = email;
+    requestBody['first_name'] = firstName;
+    requestBody['last_name'] = lastName;
+    requestBody['phone'] = phone;
+    requestBody['password'] = password;
+    requestBody['password2'] = password2;
+
+    final response = await http.post('https://claytoncornett.tk/api/user/', body: requestBody);
+    final responseBody = jsonDecode(response.body);
+
+    if(response.statusCode == 201) {
+      final token = responseBody['token'];
+      final storage = FlutterSecureStorage();
+      storage.write(key: 'auth_token', value: token);
+
+      return AuthArguments(token: token);
+    } else {
+      var errors = [];
+      var errorKeys = ['email', 'first_name', 'last_name', 'phone', 'password', 'non_field_errors'];
+
+      responseBody.forEach((key, value) {
+        if(errorKeys.contains(key)) {
+          errors += responseBody[key];
+        }
+      });
+
+      return AuthArguments(errors: errors);
+    }
+  }
+
+  // send password reset code to email
+  Future<AuthArguments> sendResetToken(String email) async {
     Map<String, String> requestBody = new Map<String, String>();
     requestBody['email'] = email;
 
@@ -86,7 +100,7 @@ class AuthService {
     final responseBody = jsonDecode(response.body);
 
     if(response.statusCode == 201) {
-      return SendAuthTokenReturnValue();
+      return AuthArguments();
     } else {
       var errors = [];
       var errorKeys = ['email', 'non_field_errors'];
@@ -97,11 +111,12 @@ class AuthService {
         }
       });
 
-      return SendAuthTokenReturnValue(errors: errors);
+      return AuthArguments(errors: errors);
     }
   }
 
-  Future<ValidateAuthTokenReturnValue> validateAuthToken({String email = '', String token = ''}) async {
+  // validate password reset code
+  Future<AuthArguments> validateResetToken(String email, String token) async {
     Map<String, String> requestBody = new Map<String, String>();
     requestBody['email'] = email;
     requestBody['token'] = token;
@@ -110,7 +125,7 @@ class AuthService {
     final responseBody = jsonDecode(response.body);
 
     if(response.statusCode == 200) {
-      return ValidateAuthTokenReturnValue();
+      return AuthArguments();
     }else {
       var errors = [];
       var errorKeys = ['email', 'error', 'non_field_errors'];
@@ -122,14 +137,15 @@ class AuthService {
       });
 
       if(responseBody.containsKey('attempts')) {
-        return ValidateAuthTokenReturnValue(errors: errors, attempts: responseBody['attempts'][0]);
+        return AuthArguments(errors: errors, attempts: responseBody['attempts'][0]);
       }else {
-        return ValidateAuthTokenReturnValue(errors: errors);
+        return AuthArguments(errors: errors);
       }
     }
   }
 
-  Future<ResetPasswordReturnValue> resetPassword({String email = '', String token = '', String password = '', String password2 = ''}) async {
+  // reset password using reset code
+  Future<AuthArguments> resetPassword(String email, String token, String password, String password2) async {
     Map<String, String> requestBody = new Map<String, String>();
     requestBody['email'] = email;
     requestBody['token'] = token;
@@ -143,7 +159,7 @@ class AuthService {
       final storage = FlutterSecureStorage();
       storage.write(key: 'auth_token', value: responseBody['token']);
 
-      return ResetPasswordReturnValue();
+      return AuthArguments();
     }else {
       var errors = [];
       var errorKeys = ['email', 'password', 'password2', 'token', 'non_field_errors'];
@@ -155,9 +171,9 @@ class AuthService {
       });
 
       if (responseBody.containsKey('attempts')) {
-        return ResetPasswordReturnValue(errors: errors, attempts: responseBody['attempts']);
+        return AuthArguments(errors: errors, attempts: responseBody['attempts']);
       } else {
-        return ResetPasswordReturnValue(errors: errors);
+        return AuthArguments(errors: errors);
       }
     }
   }
@@ -166,12 +182,13 @@ class AuthService {
   Future<void> logout() async {
     final storage = FlutterSecureStorage();
 
-    storage.delete(key: 'auth_token');
-    // Simulate a future for response after 1 second.
-    return await new Future<void>.delayed(
-        new Duration(
-            seconds: 1
-        )
+    String token = await storage.read(key: 'auth_token');
+
+    http.post(
+      'https://claytoncornett.tk/api/logout/',
+      headers: {HttpHeaders.authorizationHeader: "Token $token"}
     );
+
+    storage.delete(key: 'auth_token');
   }
 }

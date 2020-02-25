@@ -1,7 +1,7 @@
 import 'package:capstone_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_app/style/appTheme.dart';
-import 'package:capstone_app/pages/forgot_password.dart';
+import 'package:capstone_app/models/authentication.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -9,47 +9,123 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String _status = 'Login';
-  bool _showError = false;
-  String _error = '';
-  TextStyle style = getAppTheme().primaryTextTheme.body1;
-  TextEditingController _emailController = new TextEditingController();
-  TextEditingController _passwordController = new TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+  String _status;
+  bool _showError;
+  bool _hidePassword;
+  String _error;
+  FocusNode _emailFocus;
+  FocusNode _passwordFocus;
+  TextEditingController _emailController;
+  TextEditingController _passwordController;
+  GlobalKey<FormState> _formKey;
+  TextStyle _style;
+  
+  @override
+  void initState() {
+    super.initState();
+
+    _status = 'Login';
+    _showError = false;
+    _hidePassword = true;
+    _error = '';
+    _emailFocus = FocusNode();
+    _passwordFocus = FocusNode();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    _formKey = GlobalKey<FormState>();
+    _style = getAppTheme().primaryTextTheme.body1;
+
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      FocusScope.of(context).requestFocus(_emailFocus);
+    });
+  }
+
+  @override
+  void dispose() {
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final emailField = TextFormField(
       controller: _emailController,
       obscureText: false,
-      style: style,
+      focusNode: _emailFocus,
+      style: _style,
+      keyboardType: TextInputType.emailAddress,
+      textInputAction: TextInputAction.next,
       validator: (email) {
         RegExp emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
 
-        if (email.isEmpty || !emailRegex.hasMatch(email)) {
+        if(email.isEmpty) {
+          return 'This field is required.';
+        }
+
+        if (!emailRegex.hasMatch(email)) {
           setState(() => this._status = 'Login');
 
-          return 'Invalid email format';
+          return 'Invalid email.';
         }
 
         return null;
       },
       decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Email",
-          border:
-          OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        hintText: "Email",
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
+      ),
+      onFieldSubmitted: (v){
+        FocusScope.of(context).requestFocus(_passwordFocus);
+      },
     );
 
     final passwordField = TextFormField(
       controller: _passwordController,
-      obscureText: true,
-      style: style,
+      obscureText: _hidePassword,
+      focusNode: _passwordFocus,
+      style: _style,
+        textInputAction: TextInputAction.done,
       decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Password",
-          border:
-          OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        hintText: "Password",
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
+        suffixIcon: IconButton(
+          icon: Icon(Icons.remove_red_eye),
+          onPressed: () {
+            setState(() => this._hidePassword = !this._hidePassword);
+          }
+        )
+      ),
+      validator: (password) {
+        if(password.isEmpty) {
+          return 'This field is required.';
+        }
+
+        return null;
+      },
+      onFieldSubmitted: (v) {
+        setState(() => this._status = 'Loading...');
+
+        if (_formKey.currentState.validate()) {
+          String email = _emailController.text;
+          String password = _passwordController.text;
+
+          appAuth.login(email, password).then((result) {
+            if (result.errors != null) {
+              setState(() => this._status = 'Login');
+              setState(() => this._showError = true);
+              setState(() => this._error = result.errors.join('\n'));
+            } else {
+              Navigator.of(context).pushReplacementNamed('/home');
+            }
+          });
+        }
+      }
     );
 
     final loginButton = Material(
@@ -66,11 +142,11 @@ class _LoginPageState extends State<LoginPage> {
             String email = _emailController.text;
             String password = _passwordController.text;
 
-            appAuth.login(email: email, password: password).then((result) {
+            appAuth.login(email, password).then((result) {
               if (result.errors != null) {
                 setState(() => this._status = 'Login');
                 setState(() => this._showError = true);
-                setState(() => this._error = result.errors.join(' '));
+                setState(() => this._error = result.errors.join('\n'));
               } else {
                 Navigator.of(context).pushReplacementNamed('/home');
               }
@@ -78,10 +154,13 @@ class _LoginPageState extends State<LoginPage> {
           }
         },
         child: Text(
-            '${this._status}',
-            textAlign: TextAlign.center,
-            style: style.copyWith(
-                color: Colors.white, fontWeight: FontWeight.bold)),
+          '${this._status}',
+          textAlign: TextAlign.center,
+          style: _style.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold
+          )
+        ),
       ),
     );
 
@@ -91,8 +170,9 @@ class _LoginPageState extends State<LoginPage> {
           Text(
             '${this._error}',
             textAlign: TextAlign.center,
-            style: style.copyWith(
-                color: Colors.redAccent, fontWeight: FontWeight.bold
+            style: _style.copyWith(
+              color: Colors.redAccent,
+              fontWeight: FontWeight.bold
             )
           ),
           SizedBox(height: 12.0)
@@ -108,22 +188,22 @@ class _LoginPageState extends State<LoginPage> {
           FlatButton(
             child: Text(
               'Forgot Password?',
-              style: style,
+              style: _style,
               textAlign: TextAlign.left,
             ),
             onPressed: () {
-              Navigator.pushNamed(context, '/forgot_password', arguments: ForgotPasswordArguments(_emailController.text));
+              Navigator.pushNamed(context, '/forgot_password', arguments: AuthArguments(email: _emailController.text));
             }
           ),
           FlatButton(
-              child: Text(
-                'Create Account',
-                style: style,
-                textAlign: TextAlign.right,
-              ),
-              onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/create_account');
-              }
+            child: Text(
+              'Create Account',
+              style: _style,
+              textAlign: TextAlign.right,
+            ),
+            onPressed: () {
+              Navigator.pushNamed(context, '/create_account', arguments: AuthArguments(email: _emailController.text));
+            }
           ),
         ]
       )
@@ -133,8 +213,9 @@ class _LoginPageState extends State<LoginPage> {
       appBar: new AppBar(
         title: new Text('Login'),
       ),
-      body: Center(
-        child: Container(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Container(
             child: Padding(
               padding: const EdgeInsets.all(36.0),
               child: Form(
@@ -143,18 +224,28 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
+                    Text(
+                      'Login',
+                      style: _style.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 28.0
+                      )
+                    ),
+                    SizedBox(height: 24.0),
                     errorField,
                     emailField,
                     SizedBox(height: 25.0),
                     passwordField,
                     SizedBox(height: 35.0),
                     loginButton,
+                    SizedBox(height: 8.0),
                     otherOperations,
                     SizedBox(height: 15.0),
                   ],
                 ),
               )
             ),
+          )
         )
       ),
     );

@@ -17,8 +17,8 @@ void main() async {
   Widget _defaultHome = new LoginPage();
 
   // Get result of the login function.
-  LoginReturnValue _result = await appAuth.login();
-  if (_result.errors == null) {
+  bool _result = await appAuth.verifyAuthToken();
+  if (_result == true) {
     _defaultHome = new HomePage();
   }
 
