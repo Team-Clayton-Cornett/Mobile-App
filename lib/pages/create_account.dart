@@ -2,6 +2,9 @@ import 'package:capstone_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:capstone_app/models/authentication.dart';
+import 'package:capstone_app/components/inputTextField.dart';
+import 'package:capstone_app/components/emailField.dart';
+import 'package:capstone_app/components/passwordField.dart';
 
 class CreateAccountPage extends StatefulWidget {
   @override
@@ -11,8 +14,6 @@ class CreateAccountPage extends StatefulWidget {
 class _CreateAccountPageState extends State<CreateAccountPage> {
   String _status;
   bool _showError;
-  bool _hidePassword;
-  bool _hidePassword2;
   String _error;
   TextStyle _style;
   FocusNode _emailFocus;
@@ -36,8 +37,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
     _status = 'Create Account';
     _showError = false;
-    _hidePassword = true;
-    _hidePassword2 = true;
     _error = '';
     _style = getAppTheme().primaryTextTheme.body1;
     _emailFocus = FocusNode();
@@ -86,13 +85,9 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    final emailField = TextFormField(
+    final emailField = EmailField(
       controller: _emailController,
-      obscureText: false,
       focusNode: _emailFocus,
-      style: _style,
-      keyboardType: TextInputType.emailAddress,
-      textInputAction: TextInputAction.next,
       validator: (email) {
         RegExp emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
 
@@ -108,24 +103,15 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
         return null;
       },
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        hintText: "Email",
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
-      ),
       onFieldSubmitted: (v){
         FocusScope.of(context).requestFocus(_firstNameFocus);
       },
     );
 
-    final firstNameField = TextFormField(
+    final firstNameField = InputTextField(
       controller: _firstNameController,
-      obscureText: false,
       focusNode: _firstNameFocus,
-      style: _style,
-      keyboardType: TextInputType.text,
-      textInputAction: TextInputAction.next,
-      textCapitalization: TextCapitalization.sentences,
+      hintText: 'First Name',
       validator: (firstName) {
         if(firstName.isEmpty) {
           return 'This field is required.';
@@ -139,24 +125,14 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
         return null;
       },
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        hintText: "First Name",
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
-      ),
       onFieldSubmitted: (v){
         FocusScope.of(context).requestFocus(_lastNameFocus);
       },
     );
 
-    final lastNameField = TextFormField(
+    final lastNameField = InputTextField(
       controller: _lastNameController,
-      obscureText: false,
       focusNode: _lastNameFocus,
-      style: _style,
-      keyboardType: TextInputType.text,
-      textInputAction: TextInputAction.next,
-      textCapitalization: TextCapitalization.sentences,
       validator: (lastName) {
         if(lastName.isEmpty) {
           return 'This field is required.';
@@ -170,23 +146,16 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
         return null;
       },
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        hintText: "Last Name",
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
-      ),
+      hintText: 'Last Name',
       onFieldSubmitted: (v){
         FocusScope.of(context).requestFocus(_phoneFocus);
       },
     );
 
-    final phoneField = TextFormField(
+    final phoneField = InputTextField(
       controller: _phoneController,
-      obscureText: false,
       focusNode: _phoneFocus,
-      style: _style,
       keyboardType: TextInputType.phone,
-      textInputAction: TextInputAction.next,
       validator: (phone) {
         RegExp phoneRegExp = RegExp(r'^\+?1?\d{9,15}$');
 
@@ -198,34 +167,15 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
         return null;
       },
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        hintText: "Phone Number",
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
-      ),
+      hintText: "Phone Number",
       onFieldSubmitted: (v){
         FocusScope.of(context).requestFocus(_passwordFocus);
       },
     );
 
-    final passwordField = TextFormField(
+    final passwordField = PasswordField(
       controller: _passwordController,
-      obscureText: _hidePassword,
       focusNode: _passwordFocus,
-      style: _style,
-      textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        hintText: "Password",
-        border:
-        OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
-        suffixIcon: IconButton(
-          icon: Icon(Icons.remove_red_eye),
-          onPressed: () {
-            setState(() => this._hidePassword = !this._hidePassword);
-          }
-        )
-      ),
       validator: (password) {
         if(password.isEmpty) {
           return 'This field is required.';
@@ -244,23 +194,10 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       },
     );
 
-    final passwordField2 = TextFormField(
+    final passwordField2 = PasswordField(
       controller: _password2Controller,
-      obscureText: _hidePassword2,
       focusNode: _password2Focus,
-      style: _style,
       textInputAction: TextInputAction.done,
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        hintText: "Confirm Password",
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
-        suffixIcon: IconButton(
-          icon: Icon(Icons.remove_red_eye),
-          onPressed: () {
-            setState(() => this._hidePassword2 = !this._hidePassword2);
-          }
-        )
-      ),
       validator: (password2) {
         if(password2.isEmpty) {
           return 'This field is required.';
@@ -286,7 +223,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           String password2 = _password2Controller.text;
 
           appAuth.createAccount(email, firstName, lastName, phone, password, password2)
-          .then((result) {
+              .then((result) {
             if (result.errors != null) {
               String errors = result.errors.join('\n');
 

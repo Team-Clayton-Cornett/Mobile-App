@@ -2,6 +2,7 @@ import 'package:capstone_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:capstone_app/models/authentication.dart';
+import 'package:capstone_app/components/emailField.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   @override
@@ -52,12 +53,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    final emailField = TextFormField(
+    final emailField = EmailField(
       controller: _emailController,
-      obscureText: false,
       focusNode: _emailFocus,
-      style: _style,
-      keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.done,
       validator: (email) {
         RegExp emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
@@ -74,11 +72,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
         return null;
       },
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        hintText: "Email",
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
-      ),
       onFieldSubmitted: (v) {
         setState(() => this._status = 'Loading...');
 
