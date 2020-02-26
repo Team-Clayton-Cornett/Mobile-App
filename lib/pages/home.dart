@@ -6,8 +6,10 @@ import 'package:capstone_app/components/clusterableMapMarker.dart';
 import 'package:capstone_app/components/garageCard.dart';
 import 'package:capstone_app/components/garageListSearchDelegate.dart';
 import 'package:capstone_app/components/handle.dart';
+import 'package:capstone_app/main.dart';
 import 'package:capstone_app/models/garage.dart';
 import 'package:capstone_app/repositories/filterRepository.dart';
+import 'package:capstone_app/services/auth.dart';
 import 'package:fluster/fluster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -167,7 +169,8 @@ class _HomePageState extends State<HomePage> {
             showSearch(
                 context: context,
                 delegate: GarageListSearchDelegate(
-                  garages: _garages
+                  garages: _garages,
+                  probabilities: probabilities
                 ),
             );
           },
@@ -296,6 +299,12 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               leading: Icon(Icons.directions_run),
               title: Text('Sign Out'),
+              onTap: () {
+                AuthService appAuth = new AuthService();
+                appAuth.logout();
+
+                Navigator.pushNamedAndRemoveUntil(context, "/login", (r) => false);
+              },
             ),
           ],
         ),
