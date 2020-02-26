@@ -50,6 +50,32 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     super.dispose();
   }
 
+  void _submitForm() {
+    setState(() => this._status = 'Loading...');
+
+    if (_formKey.currentState.validate()) {
+      String email = _emailController.text;
+
+      appAuth.sendResetToken(email).then((result) {
+        if (result.errors != null) {
+          setState(() => this._status = 'Send Reset Code');
+          setState(() => this._showError = true);
+          setState(() => this._error = result.errors.join('\n'));
+        } else {
+          setState(() => this._status = 'Send Reset Code');
+          setState(() => this._showError = false);
+          setState(() => this._error = '');
+
+          Navigator.pushNamed(
+            context,
+            '/forgot_password/validate',
+            arguments: AuthArguments(email: email)
+          );
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final emailField = TextFormField(
@@ -79,27 +105,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         hintText: "Email",
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
       ),
-      onFieldSubmitted: (v) {
-        setState(() => this._status = 'Loading...');
-
-        if (_formKey.currentState.validate()) {
-          String email = _emailController.text;
-
-          appAuth.sendResetToken(email).then((result) {
-            if (result.errors != null) {
-              setState(() => this._status = 'Send Reset Code');
-              setState(() => this._showError = true);
-              setState(() => this._error = result.errors.join('\n'));
-            } else {
-              setState(() => this._status = 'Send Reset Code');
-              setState(() => this._showError = false);
-              setState(() => this._error = '');
-
-              Navigator.pushNamed(context, '/forgot_password/validate', arguments: AuthArguments(email: email));
-            }
-          });
-        }
-      },
+      onFieldSubmitted: (value) => _submitForm()
     );
 
     final submitButton = MaterialButton(
@@ -108,27 +114,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       color: getAppTheme().primaryColor,
       minWidth: MediaQuery.of(context).size.width,
       padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-      onPressed: () {
-        setState(() => this._status = 'Loading...');
-
-        if (_formKey.currentState.validate()) {
-          String email = _emailController.text;
-
-          appAuth.sendResetToken(email).then((result) {
-            if (result.errors != null) {
-              setState(() => this._status = 'Send Reset Code');
-              setState(() => this._showError = true);
-              setState(() => this._error = result.errors.join('\n'));
-            } else {
-              setState(() => this._status = 'Send Reset Code');
-              setState(() => this._showError = false);
-              setState(() => this._error = '');
-
-              Navigator.pushNamed(context, '/forgot_password/validate', arguments: AuthArguments(email: email));
-            }
-          });
-        }
-      },
+      onPressed: () => _submitForm(),
       child: Text(
         '${this._status}',
         textAlign: TextAlign.center,

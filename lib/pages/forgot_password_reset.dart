@@ -49,6 +49,35 @@ class _ForgotPasswordResetPageState extends State<ForgotPasswordResetPage> {
     super.dispose();
   }
 
+  void _submitForm(email, token) {
+    setState(() => this._status = 'Loading...');
+
+    if (_formKey.currentState.validate()) {
+      String password = _passwordController.text;
+      String password2 = _password2Controller.text;
+
+      appAuth.resetPassword(email, token, password, password2)
+      .then((result) {
+        if (result.errors != null) {
+          String errors = result.errors.join('\n');
+          if (result.attempts != null) {
+            errors += '\nYou have ${result.attempts} remaining.';
+          }
+
+          setState(() => this._status = 'Change Password');
+          setState(() => this._showError = true);
+          setState(() => this._error = errors);
+        } else {
+          setState(() => this._status = 'Change Password');
+          setState(() => this._showError = false);
+          setState(() => this._error = '');
+
+          Navigator.of(context).pushReplacementNamed('/home');
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final AuthArguments args = ModalRoute.of(context).settings.arguments;
@@ -92,34 +121,7 @@ class _ForgotPasswordResetPageState extends State<ForgotPasswordResetPage> {
 
         return null;
       },
-      onFieldSubmitted: (v) {
-        setState(() => this._status = 'Loading...');
-
-        if (_formKey.currentState.validate()) {
-          String password = _passwordController.text;
-          String password2 = _password2Controller.text;
-
-          appAuth.resetPassword(args.email, args.token, password, password2)
-          .then((result) {
-            if (result.errors != null) {
-              String errors = result.errors.join('\n');
-              if (result.attempts != null) {
-                errors += '\nYou have ${result.attempts} remaining.';
-              }
-
-              setState(() => this._status = 'Change Password');
-              setState(() => this._showError = true);
-              setState(() => this._error = errors);
-            } else {
-              setState(() => this._status = 'Change Password');
-              setState(() => this._showError = false);
-              setState(() => this._error = '');
-
-              Navigator.of(context).pushReplacementNamed('/home');
-            }
-          });
-        }
-      },
+      onFieldSubmitted: (value) => _submitForm(args.email, args.token)
     );
 
     final submitButton = MaterialButton(
@@ -128,42 +130,7 @@ class _ForgotPasswordResetPageState extends State<ForgotPasswordResetPage> {
       color: getAppTheme().primaryColor,
       minWidth: MediaQuery.of(context).size.width,
       padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-      onPressed: () {
-        setState(() => this._status = 'Loading...');
-
-        if (_formKey.currentState.validate()) {
-          String password = _passwordController.text;
-          String password2 = _password2Controller.text;
-
-          if (password != password2) {
-            setState(() => this._status = 'Change Password');
-            setState(() => this._showError = true);
-            setState(() => this._error = 'Passwords must match.');
-
-            return;
-          }
-
-          appAuth.resetPassword(args.email, args.token, password, password2)
-          .then((result) {
-            if (result.errors != null) {
-              String errors = result.errors.join('\n');
-              if (result.attempts != null) {
-                errors += ' You have ${result.attempts} remaining.';
-              }
-
-              setState(() => this._status = 'Change Password');
-              setState(() => this._showError = true);
-              setState(() => this._error = errors);
-            } else {
-              setState(() => this._status = 'Change Password');
-              setState(() => this._showError = false);
-              setState(() => this._error = '');
-
-              Navigator.of(context).pushReplacementNamed('/home');
-            }
-          });
-        }
-      },
+      onPressed: () => _submitForm(args.email, args.token),
       child: Text(
         '${this._status}',
         textAlign: TextAlign.center,
