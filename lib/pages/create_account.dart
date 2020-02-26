@@ -84,6 +84,36 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     super.dispose();
   }
 
+  void _submitForm() {
+    setState(() => this._status = 'Loading...');
+
+    if (_formKey.currentState.validate()) {
+      String email = _emailController.text;
+      String firstName = _firstNameController.text;
+      String lastName = _lastNameController.text;
+      String phone = _phoneController.text;
+      String password = _passwordController.text;
+      String password2 = _password2Controller.text;
+
+      appAuth.createAccount(email, firstName, lastName, phone, password, password2)
+      .then((result) {
+        if (result.errors != null) {
+          String errors = result.errors.join('\n');
+
+          setState(() => this._status = 'Create Account');
+          setState(() => this._showError = true);
+          setState(() => this._error = errors);
+        } else {
+          setState(() => this._status = 'Create Account');
+          setState(() => this._showError = false);
+          setState(() => this._error = '');
+
+          Navigator.of(context).pushReplacementNamed('/home');
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final emailField = TextFormField(
@@ -274,34 +304,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
         return null;
       },
-      onFieldSubmitted: (v) {
-        setState(() => this._status = 'Loading...');
-
-        if (_formKey.currentState.validate()) {
-          String email = _emailController.text;
-          String firstName = _firstNameController.text;
-          String lastName = _lastNameController.text;
-          String phone = _phoneController.text == '' ? null : _phoneController.text;
-          String password = _passwordController.text;
-          String password2 = _password2Controller.text;
-
-          appAuth.createAccount(email, firstName, lastName, phone, password, password2)
-          .then((result) {
-            if (result.errors != null) {
-              String errors = result.errors.join('\n');
-
-              setState(() => this._status = 'Create Account');
-              setState(() => this._showError = true);
-              setState(() => this._error = errors);
-            } else {
-              setState(() => this._status = 'Create Account');
-              setState(() => this._showError = false);
-              setState(() => this._error = '');
-              Navigator.of(context).pushReplacementNamed('/home');
-            }
-          });
-        }
-      }
+      onFieldSubmitted: (value) => _submitForm()
     );
 
     final submitButton = MaterialButton(
@@ -310,35 +313,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       color: getAppTheme().primaryColor,
       minWidth: MediaQuery.of(context).size.width,
       padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-      onPressed: () {
-        setState(() => this._status = 'Loading...');
-
-        if (_formKey.currentState.validate()) {
-          String email = _emailController.text;
-          String firstName = _firstNameController.text;
-          String lastName = _lastNameController.text;
-          String phone = _phoneController.text == '' ? null : _phoneController.text;
-          String password = _passwordController.text;
-          String password2 = _password2Controller.text;
-
-          appAuth.createAccount(email, firstName, lastName, phone, password, password2)
-          .then((result) {
-            if (result.errors != null) {
-              String errors = result.errors.join('\n');
-
-              setState(() => this._status = 'Create Account');
-              setState(() => this._showError = true);
-              setState(() => this._error = errors);
-            } else {
-              setState(() => this._status = 'Create Account');
-              setState(() => this._showError = false);
-              setState(() => this._error = '');
-
-              Navigator.of(context).pushReplacementNamed('/home');
-            }
-          });
-        }
-      },
+      onPressed: () => _submitForm(),
       child: Text(
         '${this._status}',
         textAlign: TextAlign.center,

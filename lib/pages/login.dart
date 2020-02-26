@@ -50,6 +50,25 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  void _submitForm() {
+    setState(() => this._status = 'Loading...');
+
+    if (_formKey.currentState.validate()) {
+      String email = _emailController.text;
+      String password = _passwordController.text;
+
+      appAuth.login(email, password).then((result) {
+        if (result.errors != null) {
+          setState(() => this._status = 'Login');
+          setState(() => this._showError = true);
+          setState(() => this._error = result.errors.join('\n'));
+        } else {
+          Navigator.of(context).pushReplacementNamed('/home');
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final emailField = TextFormField(
@@ -108,24 +127,7 @@ class _LoginPageState extends State<LoginPage> {
 
         return null;
       },
-      onFieldSubmitted: (v) {
-        setState(() => this._status = 'Loading...');
-
-        if (_formKey.currentState.validate()) {
-          String email = _emailController.text;
-          String password = _passwordController.text;
-
-          appAuth.login(email, password).then((result) {
-            if (result.errors != null) {
-              setState(() => this._status = 'Login');
-              setState(() => this._showError = true);
-              setState(() => this._error = result.errors.join('\n'));
-            } else {
-              Navigator.of(context).pushReplacementNamed('/home');
-            }
-          });
-        }
-      }
+      onFieldSubmitted: (value) => _submitForm()
     );
 
     final loginButton =  MaterialButton(
@@ -134,24 +136,7 @@ class _LoginPageState extends State<LoginPage> {
       color: getAppTheme().primaryColor,
       minWidth: MediaQuery.of(context).size.width,
       padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-      onPressed: () {
-        setState(() => this._status = 'Loading...');
-
-        if (_formKey.currentState.validate()) {
-          String email = _emailController.text;
-          String password = _passwordController.text;
-
-          appAuth.login(email, password).then((result) {
-            if (result.errors != null) {
-              setState(() => this._status = 'Login');
-              setState(() => this._showError = true);
-              setState(() => this._error = result.errors.join('\n'));
-            } else {
-              Navigator.of(context).pushReplacementNamed('/home');
-            }
-          });
-        }
-      },
+      onPressed: () => _submitForm(),
       child: Text(
         '${this._status}',
         textAlign: TextAlign.center,
@@ -190,7 +175,11 @@ class _LoginPageState extends State<LoginPage> {
               textAlign: TextAlign.left,
             ),
             onPressed: () {
-              Navigator.pushNamed(context, '/forgot_password', arguments: AuthArguments(email: _emailController.text));
+              Navigator.pushNamed(
+                context,
+                '/forgot_password',
+                arguments: AuthArguments(email: _emailController.text)
+              );
             }
           ),
           FlatButton(
@@ -200,7 +189,11 @@ class _LoginPageState extends State<LoginPage> {
               textAlign: TextAlign.right,
             ),
             onPressed: () {
-              Navigator.pushNamed(context, '/create_account', arguments: AuthArguments(email: _emailController.text));
+              Navigator.pushNamed(
+                context,
+                '/create_account',
+                arguments: AuthArguments(email: _emailController.text)
+              );
             }
           ),
         ]
