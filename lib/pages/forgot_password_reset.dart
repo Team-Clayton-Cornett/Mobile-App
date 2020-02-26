@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:capstone_app/models/authentication.dart';
 import 'package:capstone_app/components/passwordFormField.dart';
-
 class ForgotPasswordResetPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => new _ForgotPasswordResetPageState();
