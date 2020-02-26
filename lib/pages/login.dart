@@ -2,6 +2,7 @@ import 'package:capstone_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:capstone_app/models/authentication.dart';
+import 'package:capstone_app/components/passwordFormField.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -11,7 +12,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   String _status;
   bool _showError;
-  bool _hidePassword;
   String _error;
   FocusNode _emailFocus;
   FocusNode _passwordFocus;
@@ -26,7 +26,6 @@ class _LoginPageState extends State<LoginPage> {
 
     _status = 'Login';
     _showError = false;
-    _hidePassword = true;
     _error = '';
     _emailFocus = FocusNode();
     _passwordFocus = FocusNode();
@@ -84,23 +83,10 @@ class _LoginPageState extends State<LoginPage> {
       },
     );
 
-    final passwordField = TextFormField(
+    final passwordField = PasswordFormField(
       controller: _passwordController,
-      obscureText: _hidePassword,
       focusNode: _passwordFocus,
-      style: _style,
-        textInputAction: TextInputAction.done,
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        hintText: "Password",
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
-        suffixIcon: IconButton(
-          icon: Icon(Icons.remove_red_eye),
-          onPressed: () {
-            setState(() => this._hidePassword = !this._hidePassword);
-          }
-        )
-      ),
+      textInputAction: TextInputAction.done,
       validator: (password) {
         if(password.isEmpty) {
           return 'This field is required.';

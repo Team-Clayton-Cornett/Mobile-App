@@ -2,6 +2,7 @@ import 'package:capstone_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:capstone_app/models/authentication.dart';
+import 'package:capstone_app/components/passwordFormField.dart';
 
 class CreateAccountPage extends StatefulWidget {
   @override
@@ -11,8 +12,6 @@ class CreateAccountPage extends StatefulWidget {
 class _CreateAccountPageState extends State<CreateAccountPage> {
   String _status;
   bool _showError;
-  bool _hidePassword;
-  bool _hidePassword2;
   String _error;
   TextStyle _style;
   FocusNode _emailFocus;
@@ -36,8 +35,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
     _status = 'Create Account';
     _showError = false;
-    _hidePassword = true;
-    _hidePassword2 = true;
     _error = '';
     _style = getAppTheme().primaryTextTheme.body1;
     _emailFocus = FocusNode();
@@ -208,24 +205,9 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       },
     );
 
-    final passwordField = TextFormField(
+    final passwordField = PasswordFormField(
       controller: _passwordController,
-      obscureText: _hidePassword,
       focusNode: _passwordFocus,
-      style: _style,
-      textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        hintText: "Password",
-        border:
-        OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
-        suffixIcon: IconButton(
-          icon: Icon(Icons.remove_red_eye),
-          onPressed: () {
-            setState(() => this._hidePassword = !this._hidePassword);
-          }
-        )
-      ),
       validator: (password) {
         if(password.isEmpty) {
           return 'This field is required.';
@@ -244,23 +226,11 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       },
     );
 
-    final passwordField2 = TextFormField(
+    final passwordField2 = PasswordFormField(
       controller: _password2Controller,
-      obscureText: _hidePassword2,
       focusNode: _password2Focus,
-      style: _style,
       textInputAction: TextInputAction.done,
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        hintText: "Confirm Password",
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
-        suffixIcon: IconButton(
-          icon: Icon(Icons.remove_red_eye),
-          onPressed: () {
-            setState(() => this._hidePassword2 = !this._hidePassword2);
-          }
-        )
-      ),
+      confirm: true,
       validator: (password2) {
         if(password2.isEmpty) {
           return 'This field is required.';
