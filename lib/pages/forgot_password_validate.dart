@@ -2,7 +2,6 @@ import 'package:capstone_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:capstone_app/models/authentication.dart';
-import 'package:capstone_app/components/inputTextField.dart';
 
 class ForgotPasswordValidatePage extends StatefulWidget {
   @override
@@ -47,9 +46,11 @@ class _ForgotPasswordValidatePageState extends State<ForgotPasswordValidatePage>
   Widget build(BuildContext context) {
     final AuthArguments args = ModalRoute.of(context).settings.arguments;
 
-    final tokenField = InputTextField(
+    final tokenField = TextFormField(
       controller: _tokenController,
+      obscureText: false,
       focusNode: _tokenFocus,
+      style: _style,
       textCapitalization: TextCapitalization.characters,
       textInputAction: TextInputAction.done,
       validator: (token) {
@@ -87,7 +88,11 @@ class _ForgotPasswordValidatePageState extends State<ForgotPasswordValidatePage>
 
         return null;
       },
-      hintText: "Reset Code",
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        hintText: "Reset Code",
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
+      ),
       onFieldSubmitted: (v) {
         setState(() => this._status = 'Loading...');
 

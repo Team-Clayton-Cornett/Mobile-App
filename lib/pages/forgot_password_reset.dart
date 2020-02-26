@@ -2,7 +2,6 @@ import 'package:capstone_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:capstone_app/models/authentication.dart';
-import 'package:capstone_app/components/passwordField.dart';
 
 class ForgotPasswordResetPage extends StatefulWidget {
   @override
@@ -12,6 +11,8 @@ class ForgotPasswordResetPage extends StatefulWidget {
 class _ForgotPasswordResetPageState extends State<ForgotPasswordResetPage> {
   String _status;
   bool _showError;
+  bool _hidePassword;
+  bool _hidePassword2;
   String _error;
   TextStyle _style;
   FocusNode _passwordFocus;
@@ -26,6 +27,8 @@ class _ForgotPasswordResetPageState extends State<ForgotPasswordResetPage> {
 
     _status = 'Change Password';
     _showError = false;
+    _hidePassword = true;
+    _hidePassword2 = true;
     _error = '';
     _style = getAppTheme().primaryTextTheme.body1;
     _passwordFocus = FocusNode();
@@ -53,9 +56,23 @@ class _ForgotPasswordResetPageState extends State<ForgotPasswordResetPage> {
   Widget build(BuildContext context) {
     final AuthArguments args = ModalRoute.of(context).settings.arguments;
 
-    final passwordField = PasswordField(
+    final passwordField = TextFormField(
       controller: _passwordController,
+      obscureText: _hidePassword,
       focusNode: _passwordFocus,
+      style: _style,
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        hintText: "Password",
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
+        suffixIcon: IconButton(
+          icon: Icon(Icons.remove_red_eye),
+          onPressed: () {
+            setState(() => this._hidePassword = !this._hidePassword);
+          }
+        )
+      ),
       validator: (password) {
         if(password.isEmpty) {
           return 'This field is required.';
@@ -74,11 +91,23 @@ class _ForgotPasswordResetPageState extends State<ForgotPasswordResetPage> {
       },
     );
 
-    final passwordField2 = PasswordField(
+    final passwordField2 = TextFormField(
       controller: _password2Controller,
+      obscureText: _hidePassword2,
       focusNode: _password2Focus,
+      style: _style,
       textInputAction: TextInputAction.done,
-      confirm: true,
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        hintText: "Confirm Password",
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
+        suffixIcon: IconButton(
+          icon: Icon(Icons.remove_red_eye),
+          onPressed: () {
+            setState(() => this._hidePassword2 = !this._hidePassword2);
+          }
+        )
+      ),
       validator: (password2) {
         if(password2.isEmpty) {
           return 'This field is required.';
