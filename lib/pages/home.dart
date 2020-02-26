@@ -7,6 +7,7 @@ import 'package:capstone_app/components/garageCard.dart';
 import 'package:capstone_app/components/garageListSearchDelegate.dart';
 import 'package:capstone_app/components/handle.dart';
 import 'package:capstone_app/models/garage.dart';
+import 'package:capstone_app/repositories/filterRepository.dart';
 import 'package:fluster/fluster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -39,11 +40,9 @@ class _HomePageState extends State<HomePage> {
   // List of map markers that will actually be displayed, whether they are clusters or actual garage markers
   Set<Marker> _displayedMarkers = Set<Marker>();
 
-  // TODO: Remove when actual probabilities are available
-  Random random = Random();
-  List<double> probabilities;
-
   final List<Garage> _garages = List();
+
+  final FilterRepository _filterRepo = FilterRepository.getInstance();
 
   // Handles clustering map markers when too many are too close together
   Fluster<ClusterableMapMarker> fluster;
@@ -83,8 +82,6 @@ class _HomePageState extends State<HomePage> {
         }
 
         _sortGaragesByProximity();
-
-        probabilities = List.generate(_garages.length, (index) {return random.nextDouble();});
 
         // Initialize fluster
         fluster = Fluster<ClusterableMapMarker>(
@@ -170,8 +167,7 @@ class _HomePageState extends State<HomePage> {
             showSearch(
                 context: context,
                 delegate: GarageListSearchDelegate(
-                  garages: _garages,
-                  probabilities: probabilities
+                  garages: _garages
                 ),
             );
           },
@@ -250,9 +246,10 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 }
+
                 return GarageCard(
                   name: _garages[index - 1].name,
-                  ticketProbability: probabilities[index - 1],
+                  ticketProbability: _garages[index - 1].getProbabilityForTimeInterval(_filterRepo.intervalStart, _filterRepo.intervalEnd),
                 );
               },
             ),
