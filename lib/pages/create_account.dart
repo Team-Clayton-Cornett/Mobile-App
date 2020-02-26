@@ -301,54 +301,52 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
             }
           });
         }
-      },
+      }
     );
 
-    final submitButton = Material(
+    final submitButton = MaterialButton(
       elevation: 5.0,
-      borderRadius: BorderRadius.circular(30.0),
-      color: Color(0xff01A0C7),
-      child: MaterialButton(
-        minWidth: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () {
-          setState(() => this._status = 'Loading...');
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+      color: getAppTheme().primaryColor,
+      minWidth: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+      onPressed: () {
+        setState(() => this._status = 'Loading...');
 
-          if (_formKey.currentState.validate()) {
-            String email = _emailController.text;
-            String firstName = _firstNameController.text;
-            String lastName = _lastNameController.text;
-            String phone = _phoneController.text == '' ? null : _phoneController.text;
-            String password = _passwordController.text;
-            String password2 = _password2Controller.text;
+        if (_formKey.currentState.validate()) {
+          String email = _emailController.text;
+          String firstName = _firstNameController.text;
+          String lastName = _lastNameController.text;
+          String phone = _phoneController.text == '' ? null : _phoneController.text;
+          String password = _passwordController.text;
+          String password2 = _password2Controller.text;
 
-            appAuth.createAccount(email, firstName, lastName, phone, password, password2)
-            .then((result) {
-              if (result.errors != null) {
-                String errors = result.errors.join('\n');
+          appAuth.createAccount(email, firstName, lastName, phone, password, password2)
+          .then((result) {
+            if (result.errors != null) {
+              String errors = result.errors.join('\n');
 
-                setState(() => this._status = 'Create Account');
-                setState(() => this._showError = true);
-                setState(() => this._error = errors);
-              } else {
-                setState(() => this._status = 'Create Account');
-                setState(() => this._showError = false);
-                setState(() => this._error = '');
+              setState(() => this._status = 'Create Account');
+              setState(() => this._showError = true);
+              setState(() => this._error = errors);
+            } else {
+              setState(() => this._status = 'Create Account');
+              setState(() => this._showError = false);
+              setState(() => this._error = '');
 
-                Navigator.of(context).pushReplacementNamed('/home');
-              }
-            });
-          }
-        },
-        child: Text(
-          '${this._status}',
-          textAlign: TextAlign.center,
-          style: _style.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold
-          )
-        ),
-      ),
+              Navigator.of(context).pushReplacementNamed('/home');
+            }
+          });
+        }
+      },
+      child: Text(
+        '${this._status}',
+        textAlign: TextAlign.center,
+        style: _style.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.bold
+        )
+      )
     );
 
     final errorField = Visibility(
@@ -371,6 +369,9 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     return Scaffold(
       appBar: new AppBar(
         title: new Text('Create Account'),
+        iconTheme: IconThemeData(
+          color: Colors.white
+        )
       ),
       body: SingleChildScrollView(
         child: Center(

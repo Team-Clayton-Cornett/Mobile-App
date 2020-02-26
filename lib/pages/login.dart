@@ -128,39 +128,37 @@ class _LoginPageState extends State<LoginPage> {
       }
     );
 
-    final loginButton = Material(
+    final loginButton =  MaterialButton(
       elevation: 5.0,
-      borderRadius: BorderRadius.circular(30.0),
-      color: Color(0xff01A0C7),
-      child: MaterialButton(
-        minWidth: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () {
-          setState(() => this._status = 'Loading...');
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+      color: getAppTheme().primaryColor,
+      minWidth: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+      onPressed: () {
+        setState(() => this._status = 'Loading...');
 
-          if (_formKey.currentState.validate()) {
-            String email = _emailController.text;
-            String password = _passwordController.text;
+        if (_formKey.currentState.validate()) {
+          String email = _emailController.text;
+          String password = _passwordController.text;
 
-            appAuth.login(email, password).then((result) {
-              if (result.errors != null) {
-                setState(() => this._status = 'Login');
-                setState(() => this._showError = true);
-                setState(() => this._error = result.errors.join('\n'));
-              } else {
-                Navigator.of(context).pushReplacementNamed('/home');
-              }
-            });
-          }
-        },
-        child: Text(
-          '${this._status}',
-          textAlign: TextAlign.center,
-          style: _style.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold
-          )
-        ),
+          appAuth.login(email, password).then((result) {
+            if (result.errors != null) {
+              setState(() => this._status = 'Login');
+              setState(() => this._showError = true);
+              setState(() => this._error = result.errors.join('\n'));
+            } else {
+              Navigator.of(context).pushReplacementNamed('/home');
+            }
+          });
+        }
+      },
+      child: Text(
+        '${this._status}',
+        textAlign: TextAlign.center,
+        style: _style.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.bold
+        )
       ),
     );
 
@@ -212,6 +210,9 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: new AppBar(
         title: new Text('Login'),
+        iconTheme: IconThemeData(
+          color: Colors.white
+        )
       ),
       body: SingleChildScrollView(
         child: Center(

@@ -121,48 +121,46 @@ class _ForgotPasswordValidatePageState extends State<ForgotPasswordValidatePage>
       },
     );
 
-    final submitButton = Material(
+    final submitButton = MaterialButton(
       elevation: 5.0,
-      borderRadius: BorderRadius.circular(30.0),
-      color: Color(0xff01A0C7),
-      child: MaterialButton(
-        minWidth: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () {
-          setState(() => this._status = 'Loading...');
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+      color: getAppTheme().primaryColor,
+      minWidth: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+      onPressed: () {
+        setState(() => this._status = 'Loading...');
 
-          if (_formKey.currentState.validate()) {
-            String token = _tokenController.text;
+        if (_formKey.currentState.validate()) {
+          String token = _tokenController.text;
 
-            appAuth.validateResetToken(args.email, token).then((result) {
-              if (result.errors != null) {
-                String errors = result.errors.join('\n');
-                if(result.attempts != null) {
-                  errors += '\nYou have ${result.attempts} attempts remaining.';
-                }
-
-                setState(() => this._status = 'Submit');
-                setState(() => this._showError = true);
-                setState(() => this._error = errors);
-              } else {
-                setState(() => this._status = 'Submit');
-                setState(() => this._showError = false);
-                setState(() => this._error = '');
-
-                Navigator.pushNamed(context, '/forgot_password/reset', arguments: AuthArguments(email: args.email, token: token));
+          appAuth.validateResetToken(args.email, token).then((result) {
+            if (result.errors != null) {
+              String errors = result.errors.join('\n');
+              if(result.attempts != null) {
+                errors += '\nYou have ${result.attempts} attempts remaining.';
               }
-            });
-          }
-        },
-        child: Text(
-          '${this._status}',
-          textAlign: TextAlign.center,
-          style: _style.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold
-          )
-        ),
-      ),
+
+              setState(() => this._status = 'Submit');
+              setState(() => this._showError = true);
+              setState(() => this._error = errors);
+            } else {
+              setState(() => this._status = 'Submit');
+              setState(() => this._showError = false);
+              setState(() => this._error = '');
+
+              Navigator.pushNamed(context, '/forgot_password/reset', arguments: AuthArguments(email: args.email, token: token));
+            }
+          });
+        }
+      },
+      child: Text(
+        '${this._status}',
+        textAlign: TextAlign.center,
+        style: _style.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.bold
+        )
+      )
     );
 
     final errorField = Visibility(
@@ -185,6 +183,9 @@ class _ForgotPasswordValidatePageState extends State<ForgotPasswordValidatePage>
     return Scaffold(
       appBar: new AppBar(
         title: new Text('Forgot Password'),
+        iconTheme: IconThemeData(
+          color: Colors.white
+        )
       ),
       body: SingleChildScrollView(
         child: Center(

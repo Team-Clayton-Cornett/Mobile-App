@@ -102,43 +102,41 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       },
     );
 
-    final submitButton = Material(
+    final submitButton = MaterialButton(
       elevation: 5.0,
-      borderRadius: BorderRadius.circular(30.0),
-      color: Color(0xff01A0C7),
-      child: MaterialButton(
-        minWidth: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () {
-          setState(() => this._status = 'Loading...');
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+      color: getAppTheme().primaryColor,
+      minWidth: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+      onPressed: () {
+        setState(() => this._status = 'Loading...');
 
-          if (_formKey.currentState.validate()) {
-            String email = _emailController.text;
+        if (_formKey.currentState.validate()) {
+          String email = _emailController.text;
 
-            appAuth.sendResetToken(email).then((result) {
-              if (result.errors != null) {
-                setState(() => this._status = 'Send Reset Code');
-                setState(() => this._showError = true);
-                setState(() => this._error = result.errors.join('\n'));
-              } else {
-                setState(() => this._status = 'Send Reset Code');
-                setState(() => this._showError = false);
-                setState(() => this._error = '');
+          appAuth.sendResetToken(email).then((result) {
+            if (result.errors != null) {
+              setState(() => this._status = 'Send Reset Code');
+              setState(() => this._showError = true);
+              setState(() => this._error = result.errors.join('\n'));
+            } else {
+              setState(() => this._status = 'Send Reset Code');
+              setState(() => this._showError = false);
+              setState(() => this._error = '');
 
-                Navigator.pushNamed(context, '/forgot_password/validate', arguments: AuthArguments(email: email));
-              }
-            });
-          }
-        },
-        child: Text(
-          '${this._status}',
-          textAlign: TextAlign.center,
-          style: _style.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold
-          )
-        ),
-      ),
+              Navigator.pushNamed(context, '/forgot_password/validate', arguments: AuthArguments(email: email));
+            }
+          });
+        }
+      },
+      child: Text(
+        '${this._status}',
+        textAlign: TextAlign.center,
+        style: _style.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.bold
+        )
+      )
     );
 
     final errorField = Visibility(
@@ -161,6 +159,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     return Scaffold(
       appBar: new AppBar(
         title: new Text('Forgot Password'),
+        iconTheme: IconThemeData(
+            color: Colors.white
+        )
       ),
       body: SingleChildScrollView(
         child: Center(
