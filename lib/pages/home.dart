@@ -6,7 +6,6 @@ import 'package:capstone_app/components/clusterableMapMarker.dart';
 import 'package:capstone_app/components/garageCard.dart';
 import 'package:capstone_app/components/garageListSearchDelegate.dart';
 import 'package:capstone_app/components/handle.dart';
-import 'package:capstone_app/main.dart';
 import 'package:capstone_app/models/garage.dart';
 import 'package:capstone_app/pages/history.dart';
 import 'package:capstone_app/services/auth.dart';
@@ -31,6 +30,8 @@ class _HomePageState extends State<HomePage> {
       zoom: 14.0
   );
 
+  Future<LocationData> locationFuture;
+
   // Record the user's location if it is available
   LatLng userLocation;
 
@@ -40,13 +41,7 @@ class _HomePageState extends State<HomePage> {
   // List of map markers that will actually be displayed, whether they are clusters or actual garage markers
   Set<Marker> _displayedMarkers = Set<Marker>();
 
-  // TODO: Remove when actual probabilities are available
-  Random random = Random();
-  List<double> probabilities;
-
   final List<Garage> _garages = List();
-
-  final Completer<GoogleMapController> _controller = Completer();
 
   // Handles clustering map markers when too many are too close together
   Fluster<ClusterableMapMarker> fluster;
@@ -57,7 +52,10 @@ class _HomePageState extends State<HomePage> {
   initState() {
     super.initState();
 
-    Location().getLocation().then((LocationData location) {
+    // Save the location Future so its progress can be checked later
+    locationFuture = Location().getLocation();
+
+    locationFuture.then((LocationData location) {
       setState(() {
         userLocation = LatLng(location.latitude, location.longitude);
 
@@ -83,8 +81,6 @@ class _HomePageState extends State<HomePage> {
         }
 
         _sortGaragesByProximity();
-
-        probabilities = List.generate(_garages.length, (index) {return random.nextDouble();});
 
         // Initialize fluster
         fluster = Fluster<ClusterableMapMarker>(
@@ -171,7 +167,6 @@ class _HomePageState extends State<HomePage> {
                 context: context,
                 delegate: GarageListSearchDelegate(
                   garages: _garages,
-                  probabilities: probabilities
                 ),
             );
           },
@@ -206,24 +201,34 @@ class _HomePageState extends State<HomePage> {
         maxHeight: MediaQuery.of(context).size.height - kToolbarHeight - 20,
         borderRadius: sheetRadius,
         onPanelSlide: _onPanelSlide,
-        body: GoogleMap(
-          onMapCreated: (controller) {
-            _controller.complete(controller);
-          },
-          onCameraMove: (position) {
-            if (_cameraPosition.zoom != position.zoom) {
-              setState(() {
-                _displayedMarkers = fluster
-                    .clusters([-180, -85, 180, 85], _cameraPosition.zoom.floor())
-                    .map((ClusterableMapMarker cluster) => cluster.toMarker())
-                    .toSet();
-              });
-            }
+        // Make sure that the user location request has been completed before creating the GoogleMap widget
+        // Otherwise, the map widget will not be created properly on iOS
+        body: FutureBuilder(
+          future: locationFuture,
+          builder: (BuildContext context, AsyncSnapshot<LocationData> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting){
+              return Container();
+            } else {
+              return GoogleMap(
+                onCameraMove: (position) {
+                  if (_cameraPosition.zoom != position.zoom) {
+                    setState(() {
+                      _displayedMarkers = fluster
+                          .clusters([-180, -85, 180, 85], _cameraPosition.zoom.floor())
+                          .map((ClusterableMapMarker cluster) => cluster.toMarker())
+                          .toSet();
+                    });
+                  }
 
-            _cameraPosition = position;
+                  _cameraPosition = position;
+                },
+                initialCameraPosition: _cameraPosition,
+                markers: _displayedMarkers,
+                myLocationButtonEnabled: false,
+                myLocationEnabled: true,
+              );
+            }
           },
-          initialCameraPosition: _cameraPosition,
-          markers: _displayedMarkers,
         ),
         panelBuilder: (ScrollController scrollController) {
           return Container(
@@ -242,9 +247,9 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 }
+
                 return GarageCard(
-                  name: _garages[index - 1].name,
-                  ticketProbability: probabilities[index - 1],
+                  garage: _garages[index - 1],
                 );
               },
             ),

@@ -5,12 +5,10 @@ import 'garageCard.dart';
 
 class GarageListSearchDelegate extends SearchDelegate {
   final List<Garage> garages;
-  // TODO: Remove once garages are responsible for their own probabilities
-  final List<double> probabilities;
   
   List<Garage> _searchResults = List();
 
-  GarageListSearchDelegate({this.garages, this.probabilities});
+  GarageListSearchDelegate({this.garages});
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -76,8 +74,7 @@ class GarageListSearchDelegate extends SearchDelegate {
       itemCount: _searchResults.length,
       itemBuilder: (BuildContext context, int index) {
         return GarageCard(
-          name: _searchResults[index].name,
-          ticketProbability: probabilities[garages.indexOf(_searchResults[index])],
+          garage: _searchResults[index],
         );
       },
     );
