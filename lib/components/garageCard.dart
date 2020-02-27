@@ -1,13 +1,14 @@
 import 'package:capstone_app/components/probabilityIndicator.dart';
+import 'package:capstone_app/models/garage.dart';
+import 'package:capstone_app/repositories/filterRepository.dart';
 import 'package:flutter/material.dart';
 
 class GarageCard extends StatelessWidget {
-  final String name;
-  final double ticketProbability;
+  final Garage garage;
+  final FilterRepository _filterRepo = FilterRepository.getInstance();
 
   GarageCard({
-    @required this.name,
-    @required this.ticketProbability
+    @required this.garage,
   });
 
   @override
@@ -21,7 +22,7 @@ class GarageCard extends StatelessWidget {
       elevation: 1.0,
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to garage details on tap
+          Navigator.pushNamed(context, '/home/garage_details', arguments: garage);
         },
         child: Padding(
           padding: EdgeInsets.all(15.0),
@@ -29,19 +30,19 @@ class GarageCard extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: Text(
-                  name,
+                  garage.name,
                   style: textStyle,
                 ),
               ),
               Text(
-                "${(ticketProbability * 100).round()}%",
+                "${(garage.getProbabilityForTimeInterval(_filterRepo.intervalStart, _filterRepo.intervalEnd) * 100).round()}%",
                 style: textStyle,
               ),
               Padding(
                 padding: EdgeInsets.only(left: 15.0),
                 child: ProbabilityIndicator(
                   diameter: 34.0,
-                  probability: ticketProbability,
+                  probability: garage.getProbabilityForTimeInterval(_filterRepo.intervalStart, _filterRepo.intervalEnd),
                 ),
               )
             ],

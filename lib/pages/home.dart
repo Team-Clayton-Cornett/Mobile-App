@@ -6,9 +6,7 @@ import 'package:capstone_app/components/clusterableMapMarker.dart';
 import 'package:capstone_app/components/garageCard.dart';
 import 'package:capstone_app/components/garageListSearchDelegate.dart';
 import 'package:capstone_app/components/handle.dart';
-import 'package:capstone_app/main.dart';
 import 'package:capstone_app/models/garage.dart';
-import 'package:capstone_app/repositories/filterRepository.dart';
 import 'package:capstone_app/services/auth.dart';
 import 'package:fluster/fluster.dart';
 import 'package:flutter/material.dart';
@@ -43,8 +41,6 @@ class _HomePageState extends State<HomePage> {
   Set<Marker> _displayedMarkers = Set<Marker>();
 
   final List<Garage> _garages = List();
-
-  final FilterRepository _filterRepo = FilterRepository.getInstance();
 
   // Handles clustering map markers when too many are too close together
   Fluster<ClusterableMapMarker> fluster;
@@ -170,7 +166,6 @@ class _HomePageState extends State<HomePage> {
                 context: context,
                 delegate: GarageListSearchDelegate(
                   garages: _garages,
-                  probabilities: probabilities
                 ),
             );
           },
@@ -251,8 +246,7 @@ class _HomePageState extends State<HomePage> {
                 }
 
                 return GarageCard(
-                  name: _garages[index - 1].name,
-                  ticketProbability: _garages[index - 1].getProbabilityForTimeInterval(_filterRepo.intervalStart, _filterRepo.intervalEnd),
+                  garage: _garages[index - 1],
                 );
               },
             ),
@@ -263,7 +257,7 @@ class _HomePageState extends State<HomePage> {
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: const <Widget>[
+          children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blue,

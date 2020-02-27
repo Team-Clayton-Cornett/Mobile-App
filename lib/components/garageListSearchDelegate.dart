@@ -1,5 +1,4 @@
 import 'package:capstone_app/models/garage.dart';
-import 'package:capstone_app/repositories/filterRepository.dart';
 import 'package:flutter/material.dart';
 
 import 'garageCard.dart';
@@ -8,8 +7,6 @@ class GarageListSearchDelegate extends SearchDelegate {
   final List<Garage> garages;
   
   List<Garage> _searchResults = List();
-
-  FilterRepository _filterRepo = FilterRepository.getInstance();
 
   GarageListSearchDelegate({this.garages});
 
@@ -77,8 +74,7 @@ class GarageListSearchDelegate extends SearchDelegate {
       itemCount: _searchResults.length,
       itemBuilder: (BuildContext context, int index) {
         return GarageCard(
-          name: _searchResults[index].name,
-          ticketProbability: _searchResults[index].getProbabilityForTimeInterval(_filterRepo.intervalStart, _filterRepo.intervalEnd),
+          garage: _searchResults[index],
         );
       },
     );
