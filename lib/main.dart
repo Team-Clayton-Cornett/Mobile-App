@@ -1,3 +1,4 @@
+import 'package:capstone_app/pages/garageDetail.dart';
 import 'package:flutter/material.dart';
 
 import 'style/appTheme.dart';
@@ -37,12 +38,13 @@ class MyApp extends StatelessWidget {
       theme: getAppTheme(),
       home: home,
       routes: <String, WidgetBuilder>{
-        '/home': (BuildContext context) => new HomePage(),
-        '/login': (BuildContext context) => new LoginPage(),
-        '/forgot_password': (context) => new ForgotPasswordPage(),
-        '/forgot_password/validate': (context) => new ForgotPasswordValidatePage(),
-        '/forgot_password/reset': (context) => new ForgotPasswordResetPage(),
-        '/create_account': (BuildContext context) => new CreateAccountPage()
+        '/home': (context) => HomePage(),
+        '/login': (context) => LoginPage(),
+        '/forgot_password': (context) => ForgotPasswordPage(),
+        '/forgot_password/validate': (context) => ForgotPasswordValidatePage(),
+        '/forgot_password/reset': (context) => ForgotPasswordResetPage(),
+        '/create_account': (context) => CreateAccountPage(),
+        '/home/garage_details': (context) => GarageDetailPage()
       },
     );
   }

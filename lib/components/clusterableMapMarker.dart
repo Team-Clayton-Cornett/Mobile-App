@@ -28,14 +28,9 @@ class ClusterableMapMarker extends Clusterable {
     return Marker(
       markerId: MarkerId(name),
       position: position,
-      infoWindow: isCluster ? InfoWindow(
-        title: "$pointsSize garages nearby"
-      ) : InfoWindow(
-        title: name,
-        onTap: () {
-          // TODO: navigate to garage detail page
-        }
-      )
+      infoWindow: InfoWindow(
+        title: isCluster ? "$pointsSize garages nearby" : name
+      ),
     );
   }
 }
