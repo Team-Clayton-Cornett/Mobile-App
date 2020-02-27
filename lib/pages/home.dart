@@ -7,6 +7,7 @@ import 'package:capstone_app/components/garageCard.dart';
 import 'package:capstone_app/components/garageListSearchDelegate.dart';
 import 'package:capstone_app/components/handle.dart';
 import 'package:capstone_app/models/garage.dart';
+import 'package:capstone_app/pages/history.dart';
 import 'package:fluster/fluster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -154,6 +155,10 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future navigateToSubPage(context) async {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => SampleAppPage()));
+  }
+
   AppBar _buildAppBar() {
     return AppBar(
       title: Text("Home"),
@@ -252,7 +257,7 @@ class _HomePageState extends State<HomePage> {
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: const <Widget>[
+          children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blue,
@@ -276,6 +281,11 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               leading: Icon(Icons.history),
               title: Text('History'),
+              onTap: () => Navigator.push(
+                   context,
+                    MaterialPageRoute(
+                    builder: (BuildContext context) => SampleAppPage(),
+                  ))
             ),
             ListTile(
               leading: Icon(Icons.account_circle),
