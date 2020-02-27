@@ -223,6 +223,8 @@ class _HomePageState extends State<HomePage> {
                 },
                 initialCameraPosition: _cameraPosition,
                 markers: _displayedMarkers,
+                myLocationButtonEnabled: false,
+                myLocationEnabled: true,
               );
             }
           },

@@ -3,6 +3,7 @@ import 'package:capstone_app/models/garage.dart';
 import 'package:capstone_app/repositories/filterRepository.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class GarageDetailPage extends StatefulWidget {
   GarageDetailPage();
@@ -70,72 +71,86 @@ class GarageDetailPageState extends State<GarageDetailPage> {
 
     double ticketProbability = _garage.getProbabilityForTimeInterval(_filterRepo.intervalStart, _filterRepo.intervalEnd);
 
+    Set<Marker> markers = Set();
+    markers.add(Marker(
+      markerId: MarkerId(_garage.name),
+      position: _garage.location
+    ));
+
     return Scaffold(
       appBar: _buildAppBar(),
-      body: Stack(
+      body: Column(
         children: <Widget>[
           // TODO: Replace container with either map or garage image
-          Container(
-            color: Colors.red,
+          Expanded(
+            child: GoogleMap(
+              initialCameraPosition: CameraPosition(
+                  target: _garage.location,
+                  zoom: 16.0
+              ),
+              markers: markers,
+              myLocationButtonEnabled: false,
+              scrollGesturesEnabled: false,
+              zoomGesturesEnabled: false,
+              rotateGesturesEnabled: false,
+            ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Material(
-                elevation: 8.0,
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(15.0),
-                  topLeft: Radius.circular(15.0),
-                ),
-                color: Colors.white,
-                child: Padding(
-                  padding: EdgeInsets.all(30.0),
-                  child: Container(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(5.0, 0, 5.0, 25.0),
-                          child: Row(
-                            children: <Widget>[
-                              _buildEnforcementLabel(),
-                              Spacer(),
-                              _buildProbabilityLabel(ticketProbability),
-                              Padding(
-                                padding: EdgeInsets.all(10.0),
-                                child: ProbabilityIndicator(
-                                  diameter: 70,
-                                  probability: ticketProbability,
-                                ),
-                              )
-                            ],
-                          ),
+          Material(
+              elevation: 8.0,
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(15.0),
+                topLeft: Radius.circular(15.0),
+              ),
+              color: Colors.white,
+              child: Padding(
+                padding: EdgeInsets.all(30.0),
+                child: Container(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(5.0, 0, 5.0, 25.0),
+                        child: Row(
+                          children: <Widget>[
+                            _buildEnforcementLabel(),
+                            Spacer(),
+                            _buildProbabilityLabel(ticketProbability),
+                            Padding(
+                              padding: EdgeInsets.all(10.0),
+                              child: ProbabilityIndicator(
+                                diameter: 70,
+                                probability: ticketProbability,
+                              ),
+                            )
+                          ],
                         ),
-                        // TODO: Replace container with bar graph
-                        Container(
-                          margin: EdgeInsets.only(bottom: 20.0),
-                          height: 200,
-                          color: Colors.green,
+                      ),
+                      // TODO: Replace container with bar graph
+                      Container(
+                        margin: EdgeInsets.only(bottom: 20.0),
+                        height: 200,
+                        color: Colors.green,
+                      ),
+                      MaterialButton(
+                        onPressed: () {
+                          setState(() {
+                            // TODO: Notify repository of user check in
+                            _checkedIn = !_checkedIn;
+                          });
+                        },
+                        minWidth: double.infinity,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0)),
+                        color: getAppTheme().accentColor,
+                        child: Text(
+                          _checkedIn ? "CHECK OUT" : "CHECK IN",
+                          style: TextStyle(color: Colors.white),
                         ),
-                        MaterialButton(
-                          onPressed: () {
-                            setState(() {
-                              // TODO: Notify repository of user check in
-                              _checkedIn = !_checkedIn;
-                            });
-                          },
-                          minWidth: double.infinity,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0)),
-                          color: getAppTheme().accentColor,
-                          child: Text(
-                            _checkedIn ? "CHECK OUT" : "CHECK IN",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        )
-                      ],
-                    ),
+                      )
+                    ],
                   ),
-                )),
+                ),
+              )
           ),
         ],
       ),
