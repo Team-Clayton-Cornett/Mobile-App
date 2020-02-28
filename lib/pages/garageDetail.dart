@@ -79,10 +79,10 @@ class GarageDetailPageState extends State<GarageDetailPage> {
 
     return Scaffold(
       appBar: _buildAppBar(),
-      body: Column(
+      body: Stack(
         children: <Widget>[
-          // TODO: Replace container with either map or garage image
-          Expanded(
+          Container(
+            height: MediaQuery.of(context).size.height * 0.45,
             child: GoogleMap(
               initialCameraPosition: CameraPosition(
                   target: _garage.location,
@@ -95,62 +95,65 @@ class GarageDetailPageState extends State<GarageDetailPage> {
               rotateGesturesEnabled: false,
             ),
           ),
-          Material(
-              elevation: 8.0,
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(15.0),
-                topLeft: Radius.circular(15.0),
-              ),
-              color: Colors.white,
-              child: Padding(
-                padding: EdgeInsets.all(30.0),
-                child: Container(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(5.0, 0, 5.0, 25.0),
-                        child: Row(
-                          children: <Widget>[
-                            _buildEnforcementLabel(),
-                            Spacer(),
-                            _buildProbabilityLabel(ticketProbability),
-                            Padding(
-                              padding: EdgeInsets.all(10.0),
-                              child: ProbabilityIndicator(
-                                diameter: 70,
-                                probability: ticketProbability,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      // TODO: Replace container with bar graph
-                      Container(
-                        margin: EdgeInsets.only(bottom: 20.0),
-                        height: 200,
-                        color: Colors.green,
-                      ),
-                      MaterialButton(
-                        onPressed: () {
-                          setState(() {
-                            // TODO: Notify repository of user check in
-                            _checkedIn = !_checkedIn;
-                          });
-                        },
-                        minWidth: double.infinity,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0)),
-                        color: getAppTheme().accentColor,
-                        child: Text(
-                          _checkedIn ? "CHECK OUT" : "CHECK IN",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      )
-                    ],
-                  ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Material(
+                elevation: 8.0,
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(15.0),
+                  topLeft: Radius.circular(15.0),
                 ),
-              )
+                color: Colors.white,
+                child: Padding(
+                  padding: EdgeInsets.all(30.0),
+                  child: Container(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(5.0, 0, 5.0, 25.0),
+                          child: Row(
+                            children: <Widget>[
+                              _buildEnforcementLabel(),
+                              Spacer(),
+                              _buildProbabilityLabel(ticketProbability),
+                              Padding(
+                                padding: EdgeInsets.all(10.0),
+                                child: ProbabilityIndicator(
+                                  diameter: 70,
+                                  probability: ticketProbability,
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        // TODO: Replace container with bar graph
+                        Container(
+                          margin: EdgeInsets.only(bottom: 20.0),
+                          height: 200,
+                          color: Colors.green,
+                        ),
+                        MaterialButton(
+                          onPressed: () {
+                            setState(() {
+                              // TODO: Notify repository of user check in
+                              _checkedIn = !_checkedIn;
+                            });
+                          },
+                          minWidth: double.infinity,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0)),
+                          color: getAppTheme().accentColor,
+                          child: Text(
+                            _checkedIn ? "CHECK OUT" : "CHECK IN",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                )
+            ),
           ),
         ],
       ),
