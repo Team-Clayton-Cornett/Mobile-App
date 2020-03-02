@@ -47,11 +47,11 @@ class Garage {
 
     if (intervalEnd.difference(intervalStart).inDays > 6) {
       startDayOfWeekIndex = 0;
-      endDayOfWeekIndex = 0;
+      endDayOfWeekIndex = 6;
     }
 
     int startIndexInFirstDay = (((intervalStart.hour * 60) + intervalStart.minute) / 15).truncate();
-    int endIndexInLastDay = (((intervalEnd.hour * 60) + intervalEnd.minute) / 15).truncate();
+    int endIndexInLastDay = ((((intervalEnd.hour * 60) + intervalEnd.minute) - 1) / 15).truncate();
 
     double maxProb = 0.0;
 
