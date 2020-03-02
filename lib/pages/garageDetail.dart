@@ -1,3 +1,4 @@
+import 'package:after_layout/after_layout.dart';
 import 'package:capstone_app/components/probabilityIndicator.dart';
 import 'package:capstone_app/models/garage.dart';
 import 'package:capstone_app/repositories/filterRepository.dart';
@@ -13,7 +14,7 @@ class GarageDetailPage extends StatefulWidget {
   GarageDetailPageState createState() => GarageDetailPageState();
 }
 
-class GarageDetailPageState extends State<GarageDetailPage> {
+class GarageDetailPageState extends State<GarageDetailPage> with AfterLayoutMixin<GarageDetailPage>{
   Garage _garage;
 
   FilterRepository _filterRepo = FilterRepository.getInstance();
@@ -26,6 +27,10 @@ class GarageDetailPageState extends State<GarageDetailPage> {
   int numBars = 0;
 
   Duration durationPerBar;
+
+  GlobalKey _bottomSheetKey = GlobalKey();
+
+  double _preferedGoogleMapHeight = 0.0;
 
   @override
   initState() {
@@ -199,7 +204,7 @@ class GarageDetailPageState extends State<GarageDetailPage> {
       body: Stack(
         children: <Widget>[
           Container(
-            height: MediaQuery.of(context).size.height * 0.45,
+            height: _preferedGoogleMapHeight == 0 ? MediaQuery.of(context).size.height * 0.45 : _preferedGoogleMapHeight,
             child: GoogleMap(
               initialCameraPosition: CameraPosition(
                   target: _garage.location,
@@ -215,6 +220,7 @@ class GarageDetailPageState extends State<GarageDetailPage> {
           Align(
             alignment: Alignment.bottomCenter,
             child: Material(
+                key: _bottomSheetKey,
                 elevation: 8.0,
                 borderRadius: BorderRadius.only(
                   topRight: Radius.circular(15.0),
@@ -270,5 +276,15 @@ class GarageDetailPageState extends State<GarageDetailPage> {
         ],
       ),
     );
+  }
+
+  @override
+  void afterFirstLayout(BuildContext context) {
+    RenderBox bottomSheetRenderBox = _bottomSheetKey.currentContext.findRenderObject();
+    double bottomSheetHeight = bottomSheetRenderBox.size.height;
+
+    setState(() {
+      _preferedGoogleMapHeight = MediaQuery.of(context).size.height - bottomSheetHeight;
+    });
   }
 }
