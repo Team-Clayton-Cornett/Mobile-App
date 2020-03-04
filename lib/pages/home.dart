@@ -175,7 +175,7 @@ class _HomePageState extends State<HomePage> {
             Icons.filter_list
           ),
           onPressed: () {
-            // TODO: Navigate to filter page
+            Navigator.pushNamed(context, '/home/filter');
           },
         )
       ],

@@ -30,12 +30,16 @@ class GarageDetailPageState extends State<GarageDetailPage> with AfterLayoutMixi
 
   GlobalKey _bottomSheetKey = GlobalKey();
 
-  double _preferedGoogleMapHeight = 0.0;
+  double _preferredGoogleMapHeight = 0.0;
 
   @override
   initState() {
     super.initState();
 
+    _initBars();
+  }
+
+  void _initBars() {
     Duration filterIntervalDuration = _filterRepo.intervalEnd.difference(_filterRepo.intervalStart);
     int numSegmentsInInterval = (filterIntervalDuration.inMinutes / 15).ceil();
 
@@ -60,7 +64,11 @@ class GarageDetailPageState extends State<GarageDetailPage> with AfterLayoutMixi
         IconButton(
           icon: Icon(Icons.filter_list),
           onPressed: () {
-            // TODO: Navigate to filter page
+            Navigator.pushNamed(context, '/home/filter').then((value) {
+              setState(() {
+                _initBars();
+              });
+            });
           },
         )
       ],
@@ -135,6 +143,7 @@ class GarageDetailPageState extends State<GarageDetailPage> with AfterLayoutMixi
             BarChartData(
                 maxY: 1.0,
                 alignment: BarChartAlignment.center,
+                groupsSpace: (constraints.maxWidth / numBars) * 0.2,
                 borderData: FlBorderData(
                     show: true,
                     border: Border(
@@ -204,7 +213,7 @@ class GarageDetailPageState extends State<GarageDetailPage> with AfterLayoutMixi
       body: Stack(
         children: <Widget>[
           Container(
-            height: _preferedGoogleMapHeight == 0 ? MediaQuery.of(context).size.height * 0.45 : _preferedGoogleMapHeight,
+            height: _preferredGoogleMapHeight == 0 ? MediaQuery.of(context).size.height * 0.45 : _preferredGoogleMapHeight,
             child: GoogleMap(
               initialCameraPosition: CameraPosition(
                   target: _garage.location,
@@ -284,7 +293,7 @@ class GarageDetailPageState extends State<GarageDetailPage> with AfterLayoutMixi
     double bottomSheetHeight = bottomSheetRenderBox.size.height;
 
     setState(() {
-      _preferedGoogleMapHeight = MediaQuery.of(context).size.height - bottomSheetHeight;
+      _preferredGoogleMapHeight = MediaQuery.of(context).size.height - bottomSheetHeight;
     });
   }
 }
