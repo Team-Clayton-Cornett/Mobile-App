@@ -12,6 +12,6 @@ ThemeData getAppTheme() {
         color: Colors.black,
         fontSize: 16.0
       )
-    )
+    ),
   );
 }

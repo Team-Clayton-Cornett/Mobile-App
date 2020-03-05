@@ -187,6 +187,10 @@ class GarageDetailPageState extends State<GarageDetailPage> with AfterLayoutMixi
                     }
                   )
                 ),
+                gridData: FlGridData(
+                  horizontalInterval: 0.25,
+                  getDrawingHorizontalLine: (value) => FlLine(color: Colors.grey[300], strokeWidth: 1)
+                ),
                 barGroups: groupData
             )
         );

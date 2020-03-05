@@ -1,6 +1,7 @@
 import 'package:capstone_app/repositories/filterRepository.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 
 class FilterPage extends StatefulWidget {
   @override
@@ -11,6 +12,8 @@ class FilterPageState extends State<FilterPage> {
   FilterRepository _filterRepo = FilterRepository.getInstance();
 
   RangeValues _rangeValues;
+
+  DateTime _selectedDate;
 
   int _getIndexForTimeOfDay(TimeOfDay timeOfDay) {
     return (timeOfDay.hour * 4) + (timeOfDay.minute / 15).truncate();
@@ -24,14 +27,11 @@ class FilterPageState extends State<FilterPage> {
   }
 
   void _applyNewFilterParams() {
-    // Replace with date from calendar
-    DateTime now = DateTime.now();
-
     TimeOfDay newStartTime = _getTimeOfDayForIndex(_rangeValues.start.truncate());
-    DateTime newIntervalStart = DateTime(now.year, now.month, now.day, newStartTime.hour, newStartTime.minute);
+    DateTime newIntervalStart = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, newStartTime.hour, newStartTime.minute);
 
     TimeOfDay newEndTime = _getTimeOfDayForIndex(_rangeValues.end.truncate());
-    DateTime newIntervalEnd = DateTime(now.year, now.month, now.day, newEndTime.hour, newEndTime.minute);
+    DateTime newIntervalEnd = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, newEndTime.hour, newEndTime.minute);
 
     if (newIntervalEnd.isBefore(newIntervalStart) || newIntervalEnd.isAtSameMomentAs(newIntervalStart)) {
       newIntervalEnd.add(Duration(days: 1));
@@ -55,6 +55,8 @@ class FilterPageState extends State<FilterPage> {
     }
 
     _rangeValues = RangeValues(rangeStart, rangeEnd);
+
+    _selectedDate = _filterRepo.intervalStart;
   }
 
   @override
@@ -113,10 +115,29 @@ class FilterPageState extends State<FilterPage> {
                 ],
               ),
             ),
-            // TODO: replace container with calendar for date selection
-            Container(
-              height: 250,
-              color: Colors.red,
+            Expanded(
+              child: CalendarCarousel(
+                selectedDateTime: _selectedDate,
+                minSelectedDate: DateTime.now().subtract(Duration(days: 1)),
+                onDayPressed: (date, events) {
+                  setState(() {
+                    _selectedDate = date;
+                  });
+                },
+                todayButtonColor: Colors.grey[400],
+                selectedDayButtonColor: getAppTheme().accentColor,
+                weekendTextStyle: TextStyle(
+                  color: Colors.black
+                ),
+                weekdayTextStyle: TextStyle(
+                  color: getAppTheme().accentColor
+                ),
+                headerTextStyle: TextStyle(
+                  fontSize: 20.0,
+                  color: getAppTheme().primaryColor
+                ),
+                iconColor: getAppTheme().primaryColor,
+              ),
             ),
             MaterialButton(
               onPressed: () {
