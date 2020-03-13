@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:capstone_app/components/clusterableMapMarker.dart';
@@ -7,10 +6,11 @@ import 'package:capstone_app/components/garageCard.dart';
 import 'package:capstone_app/components/garageListSearchDelegate.dart';
 import 'package:capstone_app/components/handle.dart';
 import 'package:capstone_app/models/garage.dart';
+import 'package:capstone_app/repositories/garageRepository.dart';
 import 'package:capstone_app/services/auth.dart';
+import 'package:capstone_app/style/appTheme.dart';
 import 'package:fluster/fluster.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -29,10 +29,7 @@ class _HomePageState extends State<HomePage> {
       zoom: 14.0
   );
 
-  Future<LocationData> locationFuture;
-
-  // Record the user's location if it is available
-  LatLng userLocation;
+  Future<LocationData> _location;
 
   // List of markers for every garage on the map
   final List<ClusterableMapMarker> _markers = List<ClusterableMapMarker>();
@@ -40,7 +37,11 @@ class _HomePageState extends State<HomePage> {
   // List of map markers that will actually be displayed, whether they are clusters or actual garage markers
   Set<Marker> _displayedMarkers = Set<Marker>();
 
-  final List<Garage> _garages = List();
+  List<Garage> _garages = List();
+
+  Future<List<Garage>> _garageFuture;
+
+  GarageRepository _garageRepo = GarageRepository.getInstance();
 
   // Handles clustering map markers when too many are too close together
   Fluster<ClusterableMapMarker> fluster;
@@ -52,54 +53,44 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     // Save the location Future so its progress can be checked later
-    locationFuture = Location().getLocation();
+    _location = Location().getLocation();
 
-    locationFuture.then((LocationData location) {
+    _garageFuture = _garageRepo.getGarages();
+
+    _garageFuture.then((List<Garage> garages) async {
+      LocationData location = await _location;
+
+      _sortGaragesByProximity(LatLng(location.latitude, location.longitude));
+
+      for(Garage garage in garages) {
+        _markers.add(ClusterableMapMarker(
+            name: garage.name,
+            position: garage.location
+        ));
+      }
+
+      // Initialize fluster
+      fluster = Fluster<ClusterableMapMarker>(
+          minZoom: 0,
+          maxZoom: 21,
+          radius: 150,
+          extent: 2048,
+          nodeSize: 64,
+          points: _markers,
+          createCluster: (BaseCluster cluster, double lng, double lat) {
+            return ClusterableMapMarker(
+                name: cluster.id.toString(),
+                position: LatLng(lat, lng),
+                isCluster: cluster.isCluster,
+                clusterId: cluster.id,
+                pointsSize: cluster.pointsSize,
+                childMarkerId: cluster.childMarkerId
+            );
+          }
+      );
+
       setState(() {
-        userLocation = LatLng(location.latitude, location.longitude);
-
-        _sortGaragesByProximity();
-      });
-    });
-
-    // TODO: Move garage list loading into repository when it becomes available
-    // Load garage list from JSON file and deserialize
-    rootBundle.loadString('assets/GarageCoordinates.json').then((json) {
-      setState(() {
-        List<dynamic> garageArray = jsonDecode(json);
-
-        for(Map<String, dynamic> garage in garageArray) {
-          Garage newGarage = Garage.fromJson(garage);
-
-          _garages.add(newGarage);
-
-          _markers.add(ClusterableMapMarker(
-            name: newGarage.name,
-            position: newGarage.location
-          ));
-        }
-
-        _sortGaragesByProximity();
-
-        // Initialize fluster
-        fluster = Fluster<ClusterableMapMarker>(
-            minZoom: 0,
-            maxZoom: 21,
-            radius: 150,
-            extent: 2048,
-            nodeSize: 64,
-            points: _markers,
-            createCluster: (BaseCluster cluster, double lng, double lat) {
-              return ClusterableMapMarker(
-                  name: cluster.id.toString(),
-                  position: LatLng(lat, lng),
-                  isCluster: cluster.isCluster,
-                  clusterId: cluster.id,
-                  pointsSize: cluster.pointsSize,
-                  childMarkerId: cluster.childMarkerId
-              );
-            }
-        );
+        _garages = garages;
 
         _displayedMarkers = fluster
             .clusters([-180, -85, 180, 85], _cameraPosition.zoom.floor())
@@ -109,37 +100,30 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // Sorts the garage list by proximity to the user if both the garage list and the user location are available
-  // Has no effect otherwise.
-  void _sortGaragesByProximity() {
-    if (_garages.isNotEmpty && userLocation != null) {
-      _garages.sort((garage1, garage2) {
-        double latDist = garage1.location.latitude - userLocation.latitude;
-        double lngDist = garage1.location.longitude - userLocation.longitude;
+  /// Sorts the garage list by proximity to the user
+  void _sortGaragesByProximity(LatLng location) {
+    _garages.sort((garage1, garage2) {
+      double latDist = garage1.location.latitude - location.latitude;
+      double lngDist = garage1.location.longitude - location.longitude;
 
-        double garage1Dist = sqrt(pow(latDist, 2) + pow(lngDist, 2));
+      double garage1Dist = sqrt(pow(latDist, 2) + pow(lngDist, 2));
 
-        latDist = garage2.location.latitude - userLocation.latitude;
-        lngDist = garage2.location.longitude - userLocation.longitude;
+      latDist = garage2.location.latitude - location.latitude;
+      lngDist = garage2.location.longitude - location.longitude;
 
-        double garage2Dist = sqrt(pow(latDist, 2) + pow(lngDist, 2));
+      double garage2Dist = sqrt(pow(latDist, 2) + pow(lngDist, 2));
 
-        if (garage1Dist < garage2Dist){
-          return -1;
-        } else if (garage1Dist == garage2Dist) {
-          return 0;
-        }
-        else {
-          return 1;
-        }
-      });
-    }
+      if (garage1Dist < garage2Dist){
+        return -1;
+      } else if (garage1Dist == garage2Dist) {
+        return 0;
+      }
+      else {
+        return 1;
+      }
+    });
   }
 
-  /// Called when the sliding bottom panel moves
-  ///
-  /// [position] is a double referring to the position of the panel
-  /// where 0.0 is fully closed and 1.0 is fully open
   void _onPanelSlide(double position) {
     if (!_bottomSheetExpanded && position == 1.0) {
       setState(() {
@@ -203,35 +187,52 @@ class _HomePageState extends State<HomePage> {
         // Make sure that the user location request has been completed before creating the GoogleMap widget
         // Otherwise, the map widget will not be created properly on iOS
         body: FutureBuilder(
-          future: locationFuture,
-          builder: (BuildContext context, AsyncSnapshot<LocationData> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting){
-              return Container();
-            } else {
-              return GoogleMap(
-                onCameraMove: (position) {
-                  if (_cameraPosition.zoom != position.zoom) {
-                    setState(() {
-                      _displayedMarkers = fluster
-                          .clusters([-180, -85, 180, 85], _cameraPosition.zoom.floor())
-                          .map((ClusterableMapMarker cluster) => cluster.toMarker())
-                          .toSet();
-                    });
-                  }
+          future: _garageFuture,
+          builder: (BuildContext context, AsyncSnapshot<List<Garage>> snapshot) {
+            return GoogleMap(
+              onCameraMove: (position) {
+                if (_cameraPosition.zoom != position.zoom) {
+                  setState(() {
+                    _displayedMarkers = fluster
+                        .clusters([-180, -85, 180, 85], _cameraPosition.zoom.floor())
+                        .map((ClusterableMapMarker cluster) => cluster.toMarker())
+                        .toSet();
+                  });
+                }
 
-                  _cameraPosition = position;
-                },
-                initialCameraPosition: _cameraPosition,
-                markers: _displayedMarkers,
-                myLocationButtonEnabled: false,
-                myLocationEnabled: true,
-              );
-            }
+                _cameraPosition = position;
+              },
+              initialCameraPosition: _cameraPosition,
+              markers: _displayedMarkers,
+              myLocationButtonEnabled: false,
+              myLocationEnabled: true,
+            );
           },
         ),
         panelBuilder: (ScrollController scrollController) {
           return Container(
-            child: ListView.builder(
+            child: _garages.isEmpty ?
+            Align(
+              alignment: Alignment.topCenter,
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Handle(
+                      height: 6.0,
+                      width: 45.0,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(getAppTheme().accentColor),
+                    ),
+                  ),
+                ],
+              ),
+            ) :
+            ListView.builder(
               controller: scrollController,
               itemCount: _garages.length + 1,
               itemBuilder: (BuildContext context, int index) {

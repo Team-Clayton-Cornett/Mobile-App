@@ -77,7 +77,7 @@ packages:
       name: fl_chart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.2"
+    version: "0.8.3"
   fluster:
     dependency: "direct main"
     description:
@@ -97,6 +97,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.4.11"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.6"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -115,7 +122,7 @@ packages:
       name: google_maps_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.21+17"
+    version: "0.5.24+1"
   http:
     dependency: "direct main"
     description:
@@ -150,7 +157,7 @@ packages:
       name: location
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.4.0"
+    version: "2.5.4"
   matcher:
     dependency: transitive
     description:
@@ -284,4 +291,4 @@ packages:
     version: "3.5.0"
 sdks:
   dart: ">=2.5.0 <3.0.0"
-  flutter: ">=1.10.0 <2.0.0"
+  flutter: ">=1.12.13+hotfix.5 <2.0.0"
