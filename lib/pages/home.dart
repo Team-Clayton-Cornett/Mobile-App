@@ -97,6 +97,12 @@ class _HomePageState extends State<HomePage> {
             .map((ClusterableMapMarker cluster) => cluster.toMarker())
             .toSet();
       });
+    }).catchError((error) {
+      // If there is an error getting the garages, it is likely because of a bad token,
+      // so send the user back to the login screen to get a new one
+      debugPrint('Error getting garages: $error');
+      debugPrint('Redirecting to login');
+      Navigator.pushReplacementNamed(context, '/login');
     });
   }
 

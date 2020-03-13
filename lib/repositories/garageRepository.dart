@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:capstone_app/models/garage.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class GarageRepository {
   static final GarageRepository _instance = GarageRepository._initialize();
@@ -15,13 +17,23 @@ class GarageRepository {
   }
 
   Future<List<Garage>> getGarages() {
-    return Future.delayed(Duration(seconds: 10) ,() async {
+    return Future(() async {
       if (_garages == null) {
+        FlutterSecureStorage storage = FlutterSecureStorage();
+        String userToken = await storage.read(key: 'auth_token');
+
+        http.Response response = await http.get(
+          'https://claytoncornett.tk/api/garages',
+          headers: {HttpHeaders.authorizationHeader: 'Token $userToken'}
+        );
+
+        if (response.statusCode != 200) {
+          return Future.error("Http Status Code: ${response.statusCode} Body: ${response.body}");
+        }
+
         _garages = List();
 
-        String json = await rootBundle.loadString('assets/garages.json');
-
-        List<dynamic> jsonList = jsonDecode(json);
+        List<dynamic> jsonList = jsonDecode(response.body);
 
         for(Map<String, dynamic> garage in jsonList) {
           _garages.add(Garage.fromJson(garage));
