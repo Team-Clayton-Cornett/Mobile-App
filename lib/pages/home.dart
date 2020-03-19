@@ -291,7 +291,11 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               leading: Icon(Icons.help),
               title: Text('About'),
-            ),
+              onTap: () {
+                Navigator.pushNamedAndRemoveUntil(
+                    context, "/about", (r) => false);
+                 }
+               ),
             ListTile(
               leading: Icon(Icons.directions_run),
               title: Text('Sign Out'),
