@@ -1,9 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Garage {
+  int id;
   String name;
   TimeOfDay enforcementStartTime;
   TimeOfDay enforcementEndTime;
@@ -12,32 +11,38 @@ class Garage {
   List<List<double>> _ticketProbabilities;
 
   Garage({
+    @required this.id,
     @required this.name,
     @required this.location,
     this.enforcementStartTime = const TimeOfDay(hour: 8, minute: 0),
     this.enforcementEndTime = const TimeOfDay(hour: 18, minute: 0),
     this.enforcedOnWeekends = false,
   }) {
-    _initRandomProbabilities();
+    _ticketProbabilities = List.generate(7, (_) => List.generate(24 * 4, (_) => 0.0));
   }
 
-  // TODO: Get enforcement start times and end times from JSON once it is made available
-  // TODO: Get ticket probabilities from JSON once they are made available
   Garage.fromJson(Map<String, dynamic> json) :
-        name = json['name'],
-        location = LatLng(json['latitude'], json['longitude']),
-        enforcementStartTime = TimeOfDay(hour: 8, minute: 0),
-        enforcementEndTime = TimeOfDay(hour: 18, minute: 0),
-        enforcedOnWeekends = false {
-    _initRandomProbabilities();
-  }
-
-  // TODO: Remove once real probabilities are available
-  _initRandomProbabilities() {
-    Random random = Random();
-
-    _ticketProbabilities = List.generate(7, (_) => List.generate(24 * 4, (_) => random.nextDouble()));
-  }
+    id = json['pk'],
+    name = json['name'],
+    location = LatLng(json['latitude'], json['longitude']),
+    enforcementStartTime = TimeOfDay(
+      hour: int.parse(json['start_enforce_time'].split(':')[0]),
+      minute: int.parse(json['start_enforce_time'].split(':')[1])
+    ),
+    enforcementEndTime = TimeOfDay(
+      hour: int.parse(json['end_enforce_time'].split(':')[0]),
+      minute: int.parse(json['end_enforce_time'].split(':')[1])
+    ),
+    enforcedOnWeekends = json['enforced_on_weekends'],
+    _ticketProbabilities = List.generate(
+      json['probability'].length,
+      (int dayIndex) => List.generate(
+        // Use (dayIndex + 1) % 6 as the day index because in Sunday is the first day in the JSON,
+        // but Flutter considers Monday the first day of the week
+        json['probability'][(dayIndex + 1) % 6]['probability'].length,
+        (int indexInDay) => json['probability'][(dayIndex + 1) % 6]['probability'][indexInDay]['probability']
+      )
+    );
 
   double getProbabilityForTimeInterval(DateTime intervalStart, DateTime intervalEnd) {
     assert(intervalEnd.isAfter(intervalStart));
