@@ -64,38 +64,37 @@ class _HomePageState extends State<HomePage> {
 
       for(Garage garage in garages) {
         _markers.add(ClusterableMapMarker(
-            name: garage.name,
-            position: garage.location
+          name: garage.name,
+          position: garage.location
         ));
       }
 
       // Initialize fluster
       fluster = Fluster<ClusterableMapMarker>(
-          minZoom: 0,
-          maxZoom: 21,
-          radius: 150,
-          extent: 2048,
-          nodeSize: 64,
-          points: _markers,
-          createCluster: (BaseCluster cluster, double lng, double lat) {
-            return ClusterableMapMarker(
-                name: cluster.id.toString(),
-                position: LatLng(lat, lng),
-                isCluster: cluster.isCluster,
-                clusterId: cluster.id,
-                pointsSize: cluster.pointsSize,
-                childMarkerId: cluster.childMarkerId
-            );
-          }
+        minZoom: 0,
+        maxZoom: 21,
+        radius: 150,
+        extent: 2048,
+        nodeSize: 64,
+        points: _markers,
+        createCluster: (BaseCluster cluster, double lng, double lat) {
+          return ClusterableMapMarker(
+            name: cluster.id.toString(),
+            position: LatLng(lat, lng),
+            isCluster: cluster.isCluster,
+            clusterId: cluster.id,
+            pointsSize: cluster.pointsSize,
+            childMarkerId: cluster.childMarkerId
+          );
+        }
       );
 
       setState(() {
         _garages = garages;
 
-        _displayedMarkers = fluster
-            .clusters([-180, -85, 180, 85], _cameraPosition.zoom.floor())
-            .map((ClusterableMapMarker cluster) => cluster.toMarker())
-            .toSet();
+        _displayedMarkers = fluster.clusters([-180, -85, 180, 85], _cameraPosition.zoom.floor())
+                                   .map((ClusterableMapMarker cluster) => cluster.toMarker())
+                                   .toSet();
       });
     }).catchError((error) {
       // If there is an error getting the garages, it is likely because of a bad token,

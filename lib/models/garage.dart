@@ -22,28 +22,27 @@ class Garage {
   }
 
   Garage.fromJson(Map<String, dynamic> json) :
-        id = json['pk'],
-        name = json['name'],
-        location = LatLng(json['latitude'], json['longitude']),
-        enforcementStartTime = TimeOfDay(
-          hour: int.parse(json['start_enforce_time'].split(':')[0]),
-          minute: int.parse(json['start_enforce_time'].split(':')[1])
-        ),
-        enforcementEndTime = TimeOfDay(
-          hour: int.parse(json['end_enforce_time'].split(':')[0]),
-          minute: int.parse(json['end_enforce_time'].split(':')[1])
-        ),
-        enforcedOnWeekends = json['enforced_on_weekends'] {
+    id = json['pk'],
+    name = json['name'],
+    location = LatLng(json['latitude'], json['longitude']),
+    enforcementStartTime = TimeOfDay(
+      hour: int.parse(json['start_enforce_time'].split(':')[0]),
+      minute: int.parse(json['start_enforce_time'].split(':')[1])
+    ),
+    enforcementEndTime = TimeOfDay(
+      hour: int.parse(json['end_enforce_time'].split(':')[0]),
+      minute: int.parse(json['end_enforce_time'].split(':')[1])
+    ),
+    enforcedOnWeekends = json['enforced_on_weekends'],
     _ticketProbabilities = List.generate(
       json['probability'].length,
-      (dayIndex) => List.generate(
+      (int dayIndex) => List.generate(
         // Use (dayIndex + 1) % 6 as the day index because in Sunday is the first day in the JSON,
         // but Flutter considers Monday the first day of the week
         json['probability'][(dayIndex + 1) % 6]['probability'].length,
-        (indexInDay) => json['probability'][(dayIndex + 1) % 6]['probability'][indexInDay]['probability']
+        (int indexInDay) => json['probability'][(dayIndex + 1) % 6]['probability'][indexInDay]['probability']
       )
     );
-  }
 
   double getProbabilityForTimeInterval(DateTime intervalStart, DateTime intervalEnd) {
     assert(intervalEnd.isAfter(intervalStart));
