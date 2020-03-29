@@ -37,10 +37,10 @@ class Garage {
     _ticketProbabilities = List.generate(
       json['probability'].length,
       (int dayIndex) => List.generate(
-        // Use (dayIndex + 1) % 6 as the day index because in Sunday is the first day in the JSON,
+        // Use (dayIndex + 1) % 7 as the day index because in Sunday is the first day in the JSON,
         // but Flutter considers Monday the first day of the week
-        json['probability'][(dayIndex + 1) % 6]['probability'].length,
-        (int indexInDay) => json['probability'][(dayIndex + 1) % 6]['probability'][indexInDay]['probability']
+        json['probability'][(dayIndex + 1) % 7]['probability'].length,
+        (int indexInDay) => json['probability'][(dayIndex + 1) % 7]['probability'][indexInDay]['probability']
       )
     );
 

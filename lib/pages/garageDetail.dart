@@ -1,6 +1,7 @@
 import 'package:after_layout/after_layout.dart';
 import 'package:capstone_app/components/probabilityIndicator.dart';
 import 'package:capstone_app/models/garage.dart';
+import 'package:capstone_app/repositories/accountRepository.dart';
 import 'package:capstone_app/repositories/filterRepository.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -19,7 +20,10 @@ class GarageDetailPageState extends State<GarageDetailPage> with AfterLayoutMixi
 
   FilterRepository _filterRepo = FilterRepository.getInstance();
 
+  AccountRepository _accountRepo = AccountRepository.getInstance();
+
   bool _checkedIn = false;
+  bool _loadingCheckedInState = true;
 
   static const int minBars = 1;
   static const int maxBars = 12;
@@ -198,10 +202,67 @@ class GarageDetailPageState extends State<GarageDetailPage> with AfterLayoutMixi
     );
   }
 
+  Widget _buildCheckInOutButton() {
+    if (_loadingCheckedInState) {
+      return CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation<Color>(getAppTheme().accentColor),
+      );
+    } else {
+      return MaterialButton(
+        onPressed: () {
+          setState(() {
+            _loadingCheckedInState = true;
+          });
+
+          if (_checkedIn) {
+            _accountRepo.checkOutOfGarage().then((_) {
+              _accountRepo.isCheckedInTo(_garage).then((bool checkedIn) {
+                setState(() {
+                  _loadingCheckedInState = false;
+                  _checkedIn = checkedIn;
+                });
+              });
+            });
+          } else {
+            _accountRepo.checkInToGarage(_garage).then((_) {
+              _accountRepo.isCheckedInTo(_garage).then((bool checkedIn) {
+                setState(() {
+                  _loadingCheckedInState = false;
+                  _checkedIn = checkedIn;
+                });
+              });
+            });
+          }
+        },
+        minWidth: double.infinity,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0)
+        ),
+        color: getAppTheme().accentColor,
+        child: Text(
+          _checkedIn ? "CHECK OUT" : "CHECK IN",
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_garage == null) {
       _garage = ModalRoute.of(context).settings.arguments;
+
+      setState(() {
+        _loadingCheckedInState = true;
+      });
+
+      _accountRepo.isCheckedInTo(_garage).then((checkedIn) {
+        setState(() {
+          _checkedIn = checkedIn;
+          _loadingCheckedInState = false;
+        });
+      });
     }
 
     double ticketProbability = _garage.getProbabilityForTimeInterval(_filterRepo.intervalStart, _filterRepo.intervalEnd);
@@ -264,22 +325,7 @@ class GarageDetailPageState extends State<GarageDetailPage> with AfterLayoutMixi
                           ),
                         ),
                         _buildProbabilityChart(),
-                        MaterialButton(
-                          onPressed: () {
-                            setState(() {
-                              // TODO: Notify repository of user check in
-                              _checkedIn = !_checkedIn;
-                            });
-                          },
-                          minWidth: double.infinity,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0)),
-                          color: getAppTheme().accentColor,
-                          child: Text(
-                            _checkedIn ? "CHECK OUT" : "CHECK IN",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        )
+                        _buildCheckInOutButton(),
                       ],
                     ),
                   ),
