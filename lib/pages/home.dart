@@ -43,6 +43,8 @@ class _HomePageState extends State<HomePage> {
 
   GarageRepository _garageRepo = GarageRepository.getInstance();
 
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   // Handles clustering map markers when too many are too close together
   Fluster<ClusterableMapMarker> fluster;
 
@@ -55,7 +57,7 @@ class _HomePageState extends State<HomePage> {
     // Save the location Future so its progress can be checked later
     _location = Location().getLocation();
 
-    _garageFuture = _garageRepo.getGarages();
+    _garageFuture = _garageRepo.getGarages().timeout(Duration(seconds: 30));
 
     _garageFuture.then((List<Garage> garages) async {
       LocationData location = await _location;
@@ -99,9 +101,15 @@ class _HomePageState extends State<HomePage> {
     }).catchError((error) {
       // If there is an error getting the garages, it is likely because of a bad token,
       // so send the user back to the login screen to get a new one
-      debugPrint('Error getting garages: $error');
-      debugPrint('Redirecting to login');
-      Navigator.pushReplacementNamed(context, '/login');
+      debugPrint('Error getting garages');
+
+      SnackBar snackBar = SnackBar(
+        content: Text('Could not connect to server'),
+      );
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scaffoldKey.currentState.showSnackBar(snackBar);
+      });
     });
   }
 
@@ -182,6 +190,7 @@ class _HomePageState extends State<HomePage> {
     );
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: _buildAppBar(),
       body: SlidingUpPanel(
         // Max height needs to be set to the total height of the page - the height of the toolbar - a bit of padding
@@ -216,48 +225,55 @@ class _HomePageState extends State<HomePage> {
         ),
         panelBuilder: (ScrollController scrollController) {
           return Container(
-            child: _garages.isEmpty ?
-            Align(
-              alignment: Alignment.topCenter,
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Handle(
-                      height: 6.0,
-                      width: 45.0,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(getAppTheme().accentColor),
-                    ),
-                  ),
-                ],
-              ),
-            ) :
-            ListView.builder(
-              controller: scrollController,
-              itemCount: _garages.length + 1,
-              itemBuilder: (BuildContext context, int index) {
-                if (index == 0) {
-                  return UnconstrainedBox(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Handle(
-                        height: 6.0,
-                        width: 45.0,
-                      ),
+            child: FutureBuilder(
+              future: _garageFuture,
+              builder: (BuildContext context, AsyncSnapshot<List<Garage>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Align(
+                    alignment: Alignment.topCenter,
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Handle(
+                            height: 6.0,
+                            width: 45.0,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(getAppTheme().accentColor),
+                          ),
+                        ),
+                      ],
                     ),
                   );
-                }
+                } else {
+                  return ListView.builder(
+                    controller: scrollController,
+                    itemCount: _garages.length + 1,
+                    itemBuilder: (BuildContext context, int index) {
+                      if (index == 0) {
+                        return UnconstrainedBox(
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Handle(
+                              height: 6.0,
+                              width: 45.0,
+                            ),
+                          ),
+                        );
+                      }
 
-                return GarageCard(
-                  garage: _garages[index - 1],
-                );
+                      return GarageCard(
+                        garage: _garages[index - 1],
+                      );
+                    },
+                  );
+                }
               },
-            ),
+            )
           );
         },
       ),

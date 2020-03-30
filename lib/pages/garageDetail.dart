@@ -33,6 +33,7 @@ class GarageDetailPageState extends State<GarageDetailPage> with AfterLayoutMixi
   Duration durationPerBar;
 
   GlobalKey _bottomSheetKey = GlobalKey();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   double _preferredGoogleMapHeight = 0.0;
 
@@ -215,23 +216,45 @@ class GarageDetailPageState extends State<GarageDetailPage> with AfterLayoutMixi
           });
 
           if (_checkedIn) {
-            _accountRepo.checkOutOfGarage().then((_) {
-              _accountRepo.isCheckedInTo(_garage).then((bool checkedIn) {
-                setState(() {
-                  _loadingCheckedInState = false;
-                  _checkedIn = checkedIn;
-                });
-              });
-            });
+            _accountRepo.checkOutOfGarage()
+                        .timeout(Duration(seconds: 30))
+                        .catchError((_) {
+                          debugPrint('Error checking out of garage');
+
+                          SnackBar snackBar = SnackBar(
+                            content: Text('Unable to check out'),
+                          );
+
+                          _scaffoldKey.currentState.showSnackBar(snackBar);
+                        })
+                        .whenComplete(() {
+                          _accountRepo.isCheckedInTo(_garage).then((bool checkedIn) {
+                            setState(() {
+                              _loadingCheckedInState = false;
+                              _checkedIn = checkedIn;
+                            });
+                          });
+                        });
           } else {
-            _accountRepo.checkInToGarage(_garage).then((_) {
-              _accountRepo.isCheckedInTo(_garage).then((bool checkedIn) {
-                setState(() {
-                  _loadingCheckedInState = false;
-                  _checkedIn = checkedIn;
-                });
-              });
-            });
+            _accountRepo.checkInToGarage(_garage)
+                        .timeout(Duration(seconds: 30))
+                        .catchError((_) {
+                          debugPrint('Error checking in to garage');
+
+                          SnackBar snackBar = SnackBar(
+                            content: Text('Unable to check in'),
+                          );
+
+                          _scaffoldKey.currentState.showSnackBar(snackBar);
+                        })
+                        .whenComplete(() {
+                          _accountRepo.isCheckedInTo(_garage).then((bool checkedIn) {
+                            setState(() {
+                              _loadingCheckedInState = false;
+                              _checkedIn = checkedIn;
+                            });
+                          });
+                        });
           }
         },
         minWidth: double.infinity,
@@ -274,6 +297,7 @@ class GarageDetailPageState extends State<GarageDetailPage> with AfterLayoutMixi
     ));
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: _buildAppBar(),
       body: Stack(
         children: <Widget>[
