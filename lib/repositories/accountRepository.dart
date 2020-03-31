@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:capstone_app/models/account.dart';
 import 'package:capstone_app/models/garage.dart';
+import 'package:capstone_app/models/park.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -122,7 +123,7 @@ class AccountRepository {
           _token = await storage.read(key: 'auth_token');
         }
 
-        Map<String, dynamic> params = {
+        Map<String, String> params = {
           'pk': _currentParkId.toString(),
           'end': DateTime.now().toIso8601String(),
         };
@@ -158,6 +159,67 @@ class AccountRepository {
         }
 
         return garage.id == _currentGarageId;
+      }
+    );
+  }
+
+  Future<void> reportTicketForPark(DateTime dateTime, Park park) {
+    return Future(
+      () async {
+        if (_token == null) {
+          FlutterSecureStorage storage = FlutterSecureStorage();
+          _token = await storage.read(key: 'auth_token');
+        }
+
+        Map<String, String> params = {
+          'park_id': park.id.toString(),
+          'date': dateTime.toIso8601String(),
+        };
+
+        http.Response response = await http.post(
+          'https://claytoncornett.tk/api/user/ticket/',
+          headers: {HttpHeaders.authorizationHeader: 'Token $_token'},
+          body: params,
+        );
+
+        if (response.statusCode != 201) {
+          return Future.error("Http Status Code: ${response.statusCode} Body: ${response.body}");
+        }
+      }
+    );
+  }
+
+  Future<void> reportTicketForGarage(DateTime dateTime, Garage garage) {
+    return Future(
+      () async {
+        if (_token == null) {
+          FlutterSecureStorage storage = FlutterSecureStorage();
+          _token = await storage.read(key: 'auth_token');
+        }
+
+        Map<String, String> params = {
+          // Start and end times must be shifted by 1 second so that the ticket can be created within
+          // the time of the park
+          'start': dateTime.subtract(Duration(seconds: 1)).toIso8601String(),
+          'end': dateTime.add(Duration(seconds: 1)).toIso8601String(),
+          'garage_id': garage.id.toString()
+        };
+
+        http.Response response = await http.post(
+          'https://claytoncornett.tk/api/user/park/',
+          headers: {
+            HttpHeaders.authorizationHeader: 'Token $_token',
+          },
+          body: params,
+        );
+
+        if (response.statusCode != 201) {
+          return Future.error("Http Status Code: ${response.statusCode} Body: ${response.body}");
+        }
+
+        Park park = Park.fromJson(jsonDecode(response.body));
+
+        await reportTicketForPark(dateTime, park);
       }
     );
   }

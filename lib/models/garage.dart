@@ -13,7 +13,7 @@ class Garage {
   Garage({
     @required this.id,
     @required this.name,
-    @required this.location,
+    this.location,
     this.enforcementStartTime = const TimeOfDay(hour: 8, minute: 0),
     this.enforcementEndTime = const TimeOfDay(hour: 18, minute: 0),
     this.enforcedOnWeekends = false,
