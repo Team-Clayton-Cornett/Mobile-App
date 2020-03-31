@@ -42,7 +42,7 @@ class GarageRepository {
             String userToken = await storage.read(key: 'auth_token');
 
             http.Response response = await http.get(
-              'https://claytoncornett.tk/api/garages',
+              'https://claytoncornett.tk/api/garages/',
               headers: {HttpHeaders.authorizationHeader: 'Token $userToken'}
             );
 
