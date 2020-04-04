@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:capstone_app/repositories/accountRepository.dart';
+import 'package:capstone_app/repositories/historyRepository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:capstone_app/models/authentication.dart';
@@ -194,5 +195,6 @@ class AuthService {
 
     // Make sure no user account info remains cached after the user logs out
     await AccountRepository.getInstance().invalidateCurrentAccount();
+    HistoryRepository.getInstance().invalidateCachedHistory();
   }
 }

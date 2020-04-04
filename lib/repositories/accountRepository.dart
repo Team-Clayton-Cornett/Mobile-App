@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:capstone_app/models/account.dart';
 import 'package:capstone_app/models/garage.dart';
 import 'package:capstone_app/models/park.dart';
+import 'package:capstone_app/repositories/historyRepository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -139,6 +140,9 @@ class AccountRepository {
         }
 
         // TODO: unsubscribe from garage notifications
+
+        // A new park event has been created, so the cached parking history is no longer valid
+        HistoryRepository.getInstance().invalidateCachedHistory();
 
         preferences.remove('currentParkId');
         _currentParkId = -1;

@@ -19,8 +19,8 @@ class Park {
   Park.fromJson(Map<String, dynamic> json) :
     id = json['pk'],
     start = DateTime.parse(json['start']),
-    end = DateTime.parse(json['end']),
+    end = json['end'] != null ? DateTime.parse(json['end']) : null,
     garageId = json['garage']['pk'],
     garageName = json['garage']['name'],
-    ticketDateTime = (json['ticket'] != null) ? DateTime.parse(json['ticket']['date']) : null;
+    ticketDateTime = json['ticket'] != null ? DateTime.parse(json['ticket']['date']) : null;
 }
