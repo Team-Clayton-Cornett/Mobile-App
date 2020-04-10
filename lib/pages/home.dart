@@ -292,8 +292,7 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.help),
               title: Text('About'),
               onTap: () {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, "/about", (r) => false);
+                Navigator.pushNamed(context, "/about");
                  }
                ),
             ListTile(
