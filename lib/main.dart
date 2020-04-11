@@ -1,3 +1,4 @@
+import 'package:capstone_app/pages/filter.dart';
 import 'package:capstone_app/pages/garageDetail.dart';
 import 'package:flutter/material.dart';
 
@@ -44,7 +45,8 @@ class MyApp extends StatelessWidget {
         '/forgot_password/validate': (context) => ForgotPasswordValidatePage(),
         '/forgot_password/reset': (context) => ForgotPasswordResetPage(),
         '/create_account': (context) => CreateAccountPage(),
-        '/home/garage_details': (context) => GarageDetailPage()
+        '/home/garage_details': (context) => GarageDetailPage(),
+        '/home/filter': (context) => FilterPage(),
       },
     );
   }
