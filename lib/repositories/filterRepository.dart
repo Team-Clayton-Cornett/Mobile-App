@@ -1,5 +1,7 @@
+import 'package:clock/clock.dart';
+
 class FilterRepository {
-  static final FilterRepository _instance = FilterRepository._initialize();
+  static FilterRepository _instance;
 
   DateTime _intervalStart;
   DateTime _intervalEnd;
@@ -7,6 +9,10 @@ class FilterRepository {
   DateTime get intervalStart => _intervalStart;
 
   set intervalStart(DateTime newIntervalStart) {
+    if (intervalEnd != null) {
+      assert(newIntervalStart.isBefore(intervalEnd));
+    }
+
     // Round the new interval start to an even 15 minute boundary
     newIntervalStart = newIntervalStart.subtract(
       Duration(
@@ -23,6 +29,10 @@ class FilterRepository {
   DateTime get intervalEnd => _intervalEnd;
 
   set intervalEnd(DateTime newIntervalEnd) {
+    if (intervalStart != null) {
+      assert(newIntervalEnd.isAfter(intervalStart));
+    }
+
     // Round the new interval end to an even 15 minute boundary
     newIntervalEnd = newIntervalEnd.subtract(
       Duration(
@@ -36,13 +46,21 @@ class FilterRepository {
     _intervalEnd = newIntervalEnd;
   }
 
-  FilterRepository._initialize() {
+  FilterRepository._initialize(Clock clock) {
     // Default the filter interval to a 1 hour interval starting in the current time slot
-    intervalStart = DateTime.now();
-    intervalEnd = DateTime.now().add(Duration(hours: 1));
+    intervalStart = clock.now();
+    intervalEnd = intervalStart.add(Duration(hours: 1));
   }
 
-  static FilterRepository getInstance() {
+  static FilterRepository getInstance([Clock clock]) {
+    if (clock != null) {
+      _instance = FilterRepository._initialize(clock);
+    }
+    else if (_instance == null) {
+      clock = Clock();
+      _instance = FilterRepository._initialize(clock);
+    }
+
     return _instance;
   }
 }

@@ -6,13 +6,17 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class HistoryRepository {
-  static final HistoryRepository _instance = HistoryRepository._initialize();
+  static HistoryRepository _instance;
 
   List<Park> _parks;
 
   HistoryRepository._initialize();
 
   static HistoryRepository getInstance() {
+    if (_instance == null) {
+      _instance = HistoryRepository._initialize();
+
+    }
     return _instance;
   }
 

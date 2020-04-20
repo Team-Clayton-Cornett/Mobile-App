@@ -8,13 +8,17 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GarageRepository {
-  static final GarageRepository _instance = GarageRepository._initialize();
+  static GarageRepository _instance;
 
   List<Garage> _garages;
 
   GarageRepository._initialize();
 
   static GarageRepository getInstance() {
+    if (_instance == null) {
+      _instance = GarageRepository._initialize();
+    }
+
     return _instance;
   }
 
