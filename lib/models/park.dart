@@ -14,9 +14,10 @@ class Park {
     @required this.end,
     @required this.garageId,
     @required this.garageName
-  });
+  }) : assert(start.isBefore(end));
 
   Park.fromJson(Map<String, dynamic> json) :
+    assert(json['pk'] != null),
     id = json['pk'],
     start = DateTime.parse(json['start']),
     end = json['end'] != null ? DateTime.parse(json['end']) : null,
