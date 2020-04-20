@@ -5,6 +5,11 @@ import 'package:capstone_app/models/park.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main () {
+  // Makes test running work from both Android Studio and command line
+  if (Directory.current.path.endsWith('/test')) {
+    Directory.current = Directory.current.parent;
+  }
+
   group('Initialization', () {
     test('Construct', () {
       Park park = Park(
@@ -36,30 +41,30 @@ void main () {
     test('Construct from valid JSON with ticket and no end', () {
       File validJSONFile = File('test_resources/valid_user_parks.json');
 
-      List<dynamic> parkList = jsonDecode(validJSONFile.readAsStringSync());
+      Map<String, dynamic> parkJson = jsonDecode(validJSONFile.readAsStringSync())[0];
 
-      Park park = Park.fromJson(parkList[0]);
+      Park park = Park.fromJson(parkJson);
       
-      expect(park.id, 772020);
-      expect(park.start, DateTime.parse('2020-03-27T20:58:36'));
+      expect(park.id, parkJson['pk']);
+      expect(park.start, DateTime.parse(parkJson['start']));
       expect(park.end, null);
-      expect(park.garageId, 1);
-      expect(park.garageName, '209 Hitt St');
-      expect(park.ticketDateTime, DateTime.parse('2020-03-30T18:47:24.619000'));
+      expect(park.garageId, parkJson['garage']['pk']);
+      expect(park.garageName, parkJson['garage']['name']);
+      expect(park.ticketDateTime, DateTime.parse(parkJson['ticket']['date']));
     });
 
     test('Construct from valid JSON with end and no ticket', () {
       File validJSONFile = File('test_resources/valid_user_parks.json');
 
-      List<dynamic> parkList = jsonDecode(validJSONFile.readAsStringSync());
+      Map<String, dynamic> parkJson = jsonDecode(validJSONFile.readAsStringSync())[1];
 
-      Park park = Park.fromJson(parkList[1]);
+      Park park = Park.fromJson(parkJson);
 
-      expect(park.id, 772016);
-      expect(park.start, DateTime.parse('2020-03-29T15:36:32.813000'));
-      expect(park.end, DateTime.parse('2020-03-29T15:36:45.249000'));
-      expect(park.garageId, 3);
-      expect(park.garageName, 'AV11');
+      expect(park.id, parkJson['pk']);
+      expect(park.start, DateTime.parse(parkJson['start']));
+      expect(park.end, DateTime.parse(parkJson['end']));
+      expect(park.garageId, parkJson['garage']['pk']);
+      expect(park.garageName, parkJson['garage']['name']);
       expect(park.ticketDateTime, null);
     });
 

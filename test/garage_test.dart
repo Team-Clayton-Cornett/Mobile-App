@@ -7,6 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 void main() {
+  // Makes test running work from both Android Studio and command line
+  if (Directory.current.path.endsWith('/test')) {
+    Directory.current = Directory.current.parent;
+  }
+
   group('Initialization', () {
     test('Construct with defaults', () {
       Garage garage = Garage(
@@ -32,16 +37,17 @@ void main() {
     test('Construct from valid JSON', () {
       File validJSONFile = File('test_resources/valid_garages.json');
       
-      List<dynamic> garageList = jsonDecode(validJSONFile.readAsStringSync());
+      Map<String, dynamic> garageJson = jsonDecode(validJSONFile.readAsStringSync())[0];
 
-      Garage garage = Garage.fromJson(garageList[0]);
+      Garage garage = Garage.fromJson(garageJson);
       
-      expect(garage.id, 1);
-      expect(garage.name, '209 Hitt St');
-      expect(garage.enforcedOnWeekends, true);
+      expect(garage.id, garageJson['pk']);
+      expect(garage.name, garageJson['name']);
+      expect(garage.enforcedOnWeekends, garageJson['enforced_on_weekends']);
       expect(garage.enforcementStartTime, TimeOfDay(hour: 7, minute: 0));
       expect(garage.enforcementEndTime, TimeOfDay(hour: 17, minute: 0));
 
+      // Probability for 12 AM to 1 AM should always be 0.01
       DateTime start = DateTime(2020, 1, 1, 0, 0);
       DateTime end = DateTime(2020, 1, 1, 1, 0);
 
