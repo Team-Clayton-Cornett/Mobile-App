@@ -22,6 +22,7 @@ class Garage {
   }
 
   Garage.fromJson(Map<String, dynamic> json) :
+    assert(json['pk'] != null),
     id = json['pk'],
     name = json['name'],
     location = LatLng(json['latitude'], json['longitude']),
