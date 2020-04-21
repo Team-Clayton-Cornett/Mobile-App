@@ -310,8 +310,8 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.account_circle),
               title: Text('Account'),
               onTap: () {
-                Navigator.pushNamedAndRemoveUntil(context, "/account", (r) => false);
-              },
+                Navigator.pushNamed(context, "/account");
+              }
             ),
             ListTile(
               leading: Icon(Icons.help),

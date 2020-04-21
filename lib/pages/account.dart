@@ -6,7 +6,7 @@ class AccountPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Account Settings'),
+        title: Text('Account'),
       ),
       body: SingleChildScrollView(
         child: Column(
