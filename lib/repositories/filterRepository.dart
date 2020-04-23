@@ -49,7 +49,17 @@ class FilterRepository {
   FilterRepository._initialize(Clock clock) {
     // Default the filter interval to a 1 hour interval starting in the current time slot
     intervalStart = clock.now();
-    intervalEnd = intervalStart.add(Duration(hours: 1));
+
+    DateTime defaultIntervalEnd = intervalStart.add(Duration(hours: 1));
+
+    // If the interval overlaps a day boundary, it should be truncated so that it ends at midnight
+    if (defaultIntervalEnd.day != intervalStart.day) {
+      defaultIntervalEnd = defaultIntervalEnd.subtract(Duration(
+        minutes: defaultIntervalEnd.minute
+      ));
+    }
+
+    intervalEnd = defaultIntervalEnd;
   }
 
   static FilterRepository getInstance([Clock clock]) {
