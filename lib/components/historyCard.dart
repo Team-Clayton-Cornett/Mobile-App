@@ -16,7 +16,7 @@ class HistoryCard extends StatelessWidget{
     );
 
     return Card(
-        margin: EdgeInsets.fromLTRB(15.0, 5.0, 15.0, 15.0),
+        margin: EdgeInsets.fromLTRB(15.5, 5.0, 15.0, 15.0),
         elevation: 1.0,
         child: InkWell(
           child: Padding(
