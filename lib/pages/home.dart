@@ -305,6 +305,9 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               leading: Icon(Icons.history),
               title: Text('History'),
+              onTap: () {
+                Navigator.of(context).pushReplacementNamed('/history');
+              },
             ),
             ListTile(
               leading: Icon(Icons.account_circle),

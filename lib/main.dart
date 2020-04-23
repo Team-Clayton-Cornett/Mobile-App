@@ -10,6 +10,7 @@ import 'pages/forgot_password_validate.dart';
 import 'pages/forgot_password_reset.dart';
 import 'pages/create_account.dart';
 import 'services/auth.dart';
+import 'pages/history.dart';
 
 AuthService appAuth = new AuthService();
 
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         '/home': (context) => HomePage(),
         '/login': (context) => LoginPage(),
+        '/history': (context) => HistoryPage(),
         '/forgot_password': (context) => ForgotPasswordPage(),
         '/forgot_password/validate': (context) => ForgotPasswordValidatePage(),
         '/forgot_password/reset': (context) => ForgotPasswordResetPage(),

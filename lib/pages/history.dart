@@ -1,57 +1,164 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
 
-import 'package:capstone_app/components/clusterableMapMarker.dart';
-import 'package:capstone_app/components/garageCard.dart';
-import 'package:capstone_app/components/garageListSearchDelegate.dart';
-import 'package:capstone_app/components/handle.dart';
-import 'package:capstone_app/models/garage.dart';
-import 'package:fluster/fluster.dart';
+import 'package:capstone_app/components/historyCard.dart';
+import 'package:capstone_app/models/park.dart';
+import 'package:capstone_app/repositories/historyRepository.dart';
+import 'package:capstone_app/services/auth.dart';
+import 'package:capstone_app/style/appTheme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-/*class HistoryPage extends StatefulWidget {
+class HistoryPage extends StatefulWidget {
+  HistoryPage({Key key}) : super(key: key);
+
   @override
   _HistoryPageState createState() => _HistoryPageState();
 }
 
 class _HistoryPageState extends State<HistoryPage> {
-  bool _bottomSheetExpanded = false;
 
+  List<Park> _histories = List();
 
+  Future<List<Park>> _historyFuture;
 
-}*/
-class SampleAppPage extends StatefulWidget {
-  SampleAppPage({Key key}) : super(key: key);
+  HistoryRepository _historyRepo = HistoryRepository.getInstance();
+
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  _HistoryPageState();
 
   @override
-  _SampleAppPageState createState() => _SampleAppPageState();
-}
+  initState() {
+    super.initState();
 
-class _SampleAppPageState extends State<SampleAppPage> {
-  // Default placeholder text
-  String textToShow = "I Like Flutter";
-  void _updateText() {
-    setState(() {
-      // update the text
-      textToShow = "Flutter is Awesome!";
+    _historyFuture = _historyRepo.getPreviousParks().timeout(Duration(seconds: 30));
+
+    _historyFuture.then((List<Park> histories) async {
+
+      setState(() {
+        _histories = histories;
+      });
+
+    }).catchError((error) {
+      // If there is an error getting the garages, it is likely because of a bad token,
+      // so send the user back to the login screen to get a new one
+      debugPrint('Error getting user history');
+
+      SnackBar snackBar = SnackBar(
+        content: Text('Could not connect to server'),
+      );
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scaffoldKey.currentState.showSnackBar(snackBar);
+      });
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
-        title: Text("Sample App"),
+        title: Text("History"),
+        centerTitle: false,
       ),
-      body: Center(child: Text(textToShow)),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _updateText,
-        tooltip: 'Update Text',
-        child: Icon(Icons.update),
+      body: Container(
+          child: FutureBuilder(
+            future: _historyFuture,
+            builder: (BuildContext context, AsyncSnapshot<List<Park>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Align(
+                  alignment: Alignment.topCenter,
+                  child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(getAppTheme().accentColor),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return ListView.builder(
+                  itemCount: _histories.length + 1,
+                  itemBuilder: (BuildContext context, int index) {
+                    if (index == 0) {
+                      return UnconstrainedBox(
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                        ),
+                      );
+                    }
+
+                    return HistoryCard(
+                      historyPark: _histories[index - 1],
+                    );
+                  },
+                );
+              }
+            },
+          )
+
+      ),
+
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'App Name',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: (){
+                Navigator.of(context).pushReplacementNamed('/home');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.report),
+              title: Text('Report'),
+            ),
+            ListTile(
+              leading: Icon(Icons.history),
+              title: Text('History'),
+              onTap: () {
+                Navigator.pushNamedAndRemoveUntil(context, "/history", (r) => false);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text('Account'),
+            ),
+            ListTile(
+              leading: Icon(Icons.help),
+              title: Text('About'),
+            ),
+            ListTile(
+              leading: Icon(Icons.directions_run),
+              title: Text('Sign Out'),
+              onTap: () {
+                AuthService appAuth = new AuthService();
+                appAuth.logout();
+
+                Navigator.pushNamedAndRemoveUntil(context, "/login", (r) => false);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
