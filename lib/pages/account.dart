@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:capstone_app/models/account.dart';
 
 class AccountPage extends StatelessWidget {
+//  String email;
+//  String password;
+//  String fname;
+//  String lname;
+//  String phoneNumber;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
