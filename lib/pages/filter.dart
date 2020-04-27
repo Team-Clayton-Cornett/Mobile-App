@@ -37,8 +37,8 @@ class FilterPageState extends State<FilterPage> {
       newIntervalEnd.add(Duration(days: 1));
     }
 
-    _filterRepo.intervalStart = newIntervalStart;
     _filterRepo.intervalEnd = newIntervalEnd;
+    _filterRepo.intervalStart = newIntervalStart;
   }
 
   @override
