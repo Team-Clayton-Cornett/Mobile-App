@@ -313,7 +313,10 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               leading: Icon(Icons.help),
               title: Text('About'),
-            ),
+              onTap: () {
+                Navigator.pushNamed(context, "/about");
+                 }
+               ),
             ListTile(
               leading: Icon(Icons.directions_run),
               title: Text('Sign Out'),
