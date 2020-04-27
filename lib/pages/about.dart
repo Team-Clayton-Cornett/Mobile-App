@@ -15,7 +15,11 @@ class AboutPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('About'),
         centerTitle: false,
+        iconTheme: IconThemeData(
+        color: Colors.white
+
         ),
+      ),
       // body is the majority of the screen.
       body: SafeArea(
         child: Column(
