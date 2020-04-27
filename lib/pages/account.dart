@@ -58,6 +58,9 @@ class _AccountPageState extends State<AccountPage> {
       appBar: AppBar(
         centerTitle: false,
         title: Text('Account Settings'),
+        iconTheme: IconThemeData(
+          color: Colors.white
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
