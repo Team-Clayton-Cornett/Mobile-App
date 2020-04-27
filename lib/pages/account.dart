@@ -1,8 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:capstone_app/services/auth.dart';
+import 'package:capstone_app/repositories/accountRepository.dart';
+import 'package:capstone_app/models/account.dart';
 
-class AccountPage extends StatelessWidget {
+class AccountPage extends StatefulWidget {
+  AccountPage({Key key}) : super(key: key);
+
+  @override
+  _AccountPageState createState() => _AccountPageState();
+}
+
+class _AccountPageState extends State<AccountPage> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  AccountRepository _accountRepo = AccountRepository.getInstance();
+
+  Future<Account> accountInfo;
+
+  @override
+  void initState() {
+    super.initState();
+
+    accountInfo = _accountRepo.getAccount();
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +60,7 @@ class AccountPage extends StatelessWidget {
               onTap: (){
                 // open edit first name
                 print("First Name Tapped");
+                print(accountInfo);
               },
 //            title: Text("John", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500,),),
 //            trailing: Icon(Icons.edit, color: Colors.white,),
