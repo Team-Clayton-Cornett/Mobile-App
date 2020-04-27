@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:capstone_app/models/park.dart';
+import 'package:intl/intl.dart';
 
 class HistoryCard extends StatelessWidget{
 
@@ -15,6 +16,9 @@ class HistoryCard extends StatelessWidget{
         fontSize: 18.0
     );
 
+    String stringStart = DateFormat.Md().add_jm().format(historyPark.start);
+    String stringEnd = DateFormat.Md().add_jm().format(historyPark.end);
+
     return Card(
         margin: EdgeInsets.fromLTRB(15.5, 5.0, 15.0, 15.0),
         elevation: 1.0,
@@ -25,7 +29,7 @@ class HistoryCard extends StatelessWidget{
               children: <Widget>[
                 Expanded(
                   child: Text(
-                  historyPark.garageName,
+                  historyPark.garageName + '    \n' + stringStart + '  --  ' + stringEnd ,
                   style: textStyle,
                   ),
                 ),

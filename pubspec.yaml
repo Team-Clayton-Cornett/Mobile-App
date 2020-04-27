@@ -46,6 +46,8 @@ dependencies:
 
   path_provider: ^1.6.5
 
+  intl: 0.15.7
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
