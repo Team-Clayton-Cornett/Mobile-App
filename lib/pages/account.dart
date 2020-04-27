@@ -79,20 +79,21 @@ class _AccountPageState extends State<AccountPage> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
                 margin: const EdgeInsets.all(20.0),
                 color: Colors.lightBlue,
-//            child: ListTile(
-                child: TextFormField(
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-                    hintText: _account.email,
-                  ),
+            child: ListTile(
+//                child: TextFormField(
+//                  style: TextStyle(
+//                    color: Colors.white,
+//                    fontWeight: FontWeight.w500,
+//                  ),
+//                  decoration: InputDecoration(
+//                    contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+//                    hintText: _account.email,
+//                  ),
                   onTap: (){
                     // open edit first name
                     print("First Name Tapped");
                   },
+              title: Text(_account.email, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500,),),
                 )
             ),
 
