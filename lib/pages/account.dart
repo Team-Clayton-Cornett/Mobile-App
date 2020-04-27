@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:capstone_app/services/auth.dart';
 import 'package:capstone_app/repositories/accountRepository.dart';
 import 'package:capstone_app/models/account.dart';
+import 'package:capstone_app/models/authentication.dart';
 
 class AccountPage extends StatefulWidget {
   AccountPage({Key key}) : super(key: key);
@@ -17,6 +18,7 @@ class _AccountPageState extends State<AccountPage> {
 
   Future<Account> accountInfo;
   Account _account;
+  AuthArguments _args;
 
   @override
   initState() {
@@ -62,9 +64,49 @@ class _AccountPageState extends State<AccountPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Card(
-
+            Center(
+              child: Text(
+                "Email",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
+
+            Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                margin: const EdgeInsets.all(20.0),
+                color: Colors.lightBlue,
+//            child: ListTile(
+                child: TextFormField(
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                    hintText: _account.email,
+                  ),
+                  onTap: (){
+                    // open edit first name
+                    print("First Name Tapped");
+                  },
+                )
+            ),
+
+            Center(
+              child: Text(
+                "First Name",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+
           Card(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
             margin: const EdgeInsets.all(20.0),
@@ -87,6 +129,18 @@ class _AccountPageState extends State<AccountPage> {
 //            trailing: Icon(Icons.edit, color: Colors.white,),
             )
           ),
+
+            Center(
+              child: Text(
+                "Last Name",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+
             Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
               margin: const EdgeInsets.all(20.0),
@@ -105,6 +159,17 @@ class _AccountPageState extends State<AccountPage> {
                     print("Last Name Tapped");
                   },
                 )
+            ),
+
+            Center(
+              child: Text(
+                "Phone Number",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
 
             Card(
@@ -141,6 +206,11 @@ class _AccountPageState extends State<AccountPage> {
                     onTap: (){
                       // open change password
                       print("Change Password Tapped");
+                      Navigator.pushNamed(
+                          context,
+                          '/forgot_password/reset',
+                          arguments: AuthArguments(email: _account.email, token: null)
+                      );
                     },
                   ),
                 ],
