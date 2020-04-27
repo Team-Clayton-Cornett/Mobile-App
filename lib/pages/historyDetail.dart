@@ -23,6 +23,7 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
   Garage _garage;
   Park _park;
   FilterRepository _filterRepo = FilterRepository.getInstance();
+  GarageRepository _garageRepository = GarageRepository.getInstance();
   var _garages;
 
   bool _Ticketed = false;
@@ -129,7 +130,7 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
   Widget build(BuildContext context) {
     if (_park == null) {
       _park = ModalRoute.of(context).settings.arguments;
-//      _garages = _garageRepository.getGarages();
+      _garages = _garageRepository.getGarages();
 //      for(var item in _garages){
 //        if(_park.garageId == item.id){
 //          _garage = item;

@@ -2,6 +2,7 @@ import 'package:capstone_app/repositories/reportRepository.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
+import 'package:capstone_app/models/garage.dart';
 
 import 'package:capstone_app/services/auth.dart';
 
@@ -14,28 +15,16 @@ class ReportPageState extends State<ReportPage> {
 
   ReportRepository _reportRepo = ReportRepository.getInstance();
 
-  double _selectedTime;
-
   DateTime _selectedDate;
   var currentSelectedValue;
   static const deviceTypes = ["Mac", "Windows", "Mobile"];
-  var currentSelectedTimeValue;
-  static const TimeTypes = ["One", "Two", "Three"];
 
-  int _getIndexForTimeOfDay(TimeOfDay timeOfDay) {
-    return (timeOfDay.hour * 4) + (timeOfDay.minute / 15).truncate();
-  }
-
-  TimeOfDay _getTimeOfDayForIndex(int index) {
-    int hour = (index / 4).truncate();
-    int minute = (index % 4) * 15;
-
-    return TimeOfDay(hour: hour, minute: minute);
-  }
+  TimeOfDay _time = TimeOfDay.now();
+  TimeOfDay picked;
 
   void _applyNewFilterParams() {
-    TimeOfDay newStartTime = _getTimeOfDayForIndex(_selectedTime.truncate());
-    DateTime newIntervalStart = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, newStartTime.hour, newStartTime.minute);
+//    TimeOfDay newStartTime = _getTimeOfDayForIndex(_selectedTime.truncate());
+    DateTime newIntervalStart = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, _time.hour, _time.minute);
 
     _reportRepo.intervalStart = newIntervalStart;
   }
@@ -43,55 +32,10 @@ class ReportPageState extends State<ReportPage> {
   @override
   void initState() {
     super.initState();
-
-    double selectedTime = _getIndexForTimeOfDay(TimeOfDay.fromDateTime(_reportRepo.intervalStart)).toDouble();
-
-    // Since the time range both starts and ends at 12:00am, if the range end is calculated to be 0,
-    // it really should be the second 12:00am, which is the last index in the range
-
-    _selectedTime = selectedTime;
-
     _selectedDate = _reportRepo.intervalStart;
   }
 
-Widget _typeFieldWidget(){
-  return Padding(
-    padding: EdgeInsets.only(
-        top: 5.0,
-        bottom: 5.0
-    ),
-    child: FormField<String>(
-      builder: (FormFieldState<String> state) {
-        return InputDecorator(
-          decoration: InputDecoration(
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5.0))),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              hint: Text("Select Garage"),
-              value: currentSelectedValue,
-              isDense: true,
-              onChanged: (newValue) {
-                setState(() {
-                  currentSelectedValue = newValue;
-                });
-                print(currentSelectedValue);
-              },
-              items: deviceTypes.map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-          ),
-        );
-      },
-    ),
-  );
-}
-
-  Widget _typeTimeWidget(){
+  Widget _typeFieldWidget(){
     return Padding(
       padding: EdgeInsets.only(
           top: 5.0,
@@ -105,16 +49,16 @@ Widget _typeFieldWidget(){
                     borderRadius: BorderRadius.circular(5.0))),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                hint: Text("Select Time"),
-                value: currentSelectedTimeValue,
+                hint: Text("Select Garage"),
+                value: currentSelectedValue,
                 isDense: true,
                 onChanged: (newValue) {
                   setState(() {
-                    currentSelectedTimeValue = newValue;
+                    currentSelectedValue = newValue;
                   });
-                  print(currentSelectedTimeValue);
+                  print(currentSelectedValue);
                 },
-                items: TimeTypes.map((String value) {
+                items: deviceTypes.map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
@@ -128,9 +72,22 @@ Widget _typeFieldWidget(){
     );
   }
 
+  Future<Null>selectTime(BuildContext context)async{
+    picked=await showTimePicker(
+        context:context,
+        initialTime:_time
+    );
+
+    setState((){
+      _time=picked;
+      print(_time);
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
-    String startTimeOfDay = _getTimeOfDayForIndex(_selectedTime.truncate()).format(context);
+//    String startTimeOfDay = _getTimeOfDayForIndex(_selectedTime.truncate()).format(context);
 
 
     return Scaffold(
@@ -146,7 +103,15 @@ Widget _typeFieldWidget(){
         child: Column(
           children: <Widget>[
             _typeFieldWidget(),
-            _typeTimeWidget(),
+//            _typeTimeWidget(),
+          Center(
+            child: IconButton(
+              icon: Icon(Icons.alarm),
+              onPressed: (){
+                selectTime(context);
+              },
+            )
+          ),
             Expanded(
               child: CalendarCarousel(
                 selectedDateTime: _selectedDate,
