@@ -16,13 +16,35 @@ class _AccountPageState extends State<AccountPage> {
   AccountRepository _accountRepo = AccountRepository.getInstance();
 
   Future<Account> accountInfo;
+  Account _account;
 
   @override
-  void initState() {
+  initState() {
     super.initState();
 
     accountInfo = _accountRepo.getAccount();
+
+    accountInfo.then((Account account) async {
+      setState(() {
+        _account = account;
+      });
+
+  }).catchError((error) {
+      debugPrint('Error getting user info');
+
+      SnackBar snackBar = SnackBar(
+      content: Text('Could not connect to server'),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _scaffoldKey.currentState.showSnackBar(snackBar);
+    });
+
+  });
+
   }
+
+
 
 
 
@@ -55,12 +77,11 @@ class _AccountPageState extends State<AccountPage> {
                ),
                decoration: InputDecoration(
                    contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-                   hintText: "First Name",
+                   hintText: _account.firstName,
                ),
               onTap: (){
                 // open edit first name
                 print("First Name Tapped");
-                print(accountInfo);
               },
 //            title: Text("John", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500,),),
 //            trailing: Icon(Icons.edit, color: Colors.white,),
@@ -77,7 +98,7 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-                    hintText: "Last Name",
+                    hintText: _account.lastName,
                   ),
                   onTap: (){
                     // open edit first name
@@ -97,7 +118,7 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-                    hintText: "Phone Number",
+                    hintText: _account.phoneNumber,
                   ),
                   onTap: (){
                     // open edit first name
