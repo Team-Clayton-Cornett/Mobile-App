@@ -22,14 +22,15 @@ class HistoryDetailPage extends StatefulWidget {
 class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMixin<HistoryDetailPage>{
   Garage _garage;
   Park _park;
-  FilterRepository _filterRepo = FilterRepository.getInstance();
+
+  AccountRepository _accountRepo = AccountRepository.getInstance();
+
   GarageRepository _garageRepo = GarageRepository.getInstance();
   List<Garage> _garages = List();
 
   Future<List<Garage>> _garageFuture;
 
   bool _Ticketed = false;
-  bool _loadingTicketedState = true;
 
   GlobalKey _bottomSheetKey = GlobalKey();
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -62,7 +63,7 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
     );
   }
 
-  Widget _buildTicketedButton(){
+  Widget _ticketedWidget(){
     return  Align(
         alignment: Alignment.bottomCenter,
         child: Material(
@@ -70,7 +71,7 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
             child: Padding(
                 padding: EdgeInsets.all(30.0),
                 child: Text(
-                  "Test",
+                  "TICKETED",
                   style: TextStyle(
                       fontWeight: FontWeight.bold
                   ),
@@ -78,74 +79,68 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
             )
         )
     );
-//    if (_loadingTicketedState) {
-//      return CircularProgressIndicator(
-//        valueColor: AlwaysStoppedAnimation<Color>(getAppTheme().accentColor),
-//      );
-//    } else{
-//      return MaterialButton(
-//        onPressed: () {
-//          setState(() {
-//            _loadingTicketedState = true;
-//          });
-//
-//          if (_Ticketed) {
-//                setState(() {
-//                  _loadingTicketedState = false;
-//                  _Ticketed = checkedIn;
-//                });
-//          } else {
-//            _accountRepo.checkInToGarage(_garage)
-//                .timeout(Duration(seconds: 30))
-//                .catchError((_) {
-//              debugPrint('Error checking in to garage');
-//
-//              SnackBar snackBar = SnackBar(
-//                content: Text('Unable to check in'),
-//              );
-//
-//              _scaffoldKey.currentState.showSnackBar(snackBar);
-//            })
-//                .whenComplete(() {
-//              _accountRepo.isCheckedInTo(_garage).then((bool checkedIn) {
-//                setState(() {
-//                  _loadingCheckedInState = false;
-//                  _checkedIn = checkedIn;
-//                });
-//              });
-//            });
-//          }
-//        },
-//        minWidth: double.infinity,
-//        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-//        shape: RoundedRectangleBorder(
-//            borderRadius: BorderRadius.circular(10.0)
-//        ),
-//        color: getAppTheme().accentColor,
-//        child: Text(
-//          _Ticketed ? "TICKETED" : "NOT TICKETED",
-//          style: TextStyle(color: Colors.white),
-//        ),
-//      );
-//    }
+  }
+
+  Widget _unTicketedWidget(){
+    return Padding(
+//      alignment: Alignment.bottomCenter,
+      padding: EdgeInsets.all(20.0),
+      child: Column(
+        children: <Widget>[
+          Center(
+            child: Text(
+            "NOT TICKETED",
+              style:TextStyle(
+                  fontWeight:FontWeight.bold
+              )
+            ),
+          ),
+          MaterialButton(
+            onPressed: () {
+              print("Reported");
+              _accountRepo.reportTicketForPark(DateTime.now(), _park);
+              setState(() {
+                _Ticketed = true;
+              });
+              print("Test" + _Ticketed.toString());
+            },
+            minWidth: double.infinity,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0)),
+            color: getAppTheme().accentColor,
+            child: Text(
+              "REPORT",
+              style: TextStyle(color: Colors.white),
+            ),
+          )
+        ]
+      )
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     Set<Marker> markers = Set();
     if (_park == null) {
-      _park = ModalRoute.of(context).settings.arguments;
+      setState(() {
+        _park = ModalRoute.of(context).settings.arguments;
+        if(_park.ticketDateTime == null){
+          _Ticketed = false;
+        } else{
+          _Ticketed = true;
+        }
+      });
       _garageFuture.then((List<Garage> garages) async {
         for(Garage garage in garages) {
           if(_park.garageId == garage.id){
-            _garage = garage;
-            if(_garage!= Null){
-              markers.add(Marker(
-                  markerId: MarkerId(_garage.name),
-                  position: _garage.location
-              ));
-            }
+            setState(() {
+              _garage = garage;
+            });
             print(_garage.name);
+            markers.add(Marker(
+              markerId: MarkerId(_garage.name),
+              position: _garage.location
+            ));
           }
         }
       });
@@ -194,7 +189,9 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
                 )
               )
           ),
-          _buildTicketedButton()
+          Center(
+              child: _Ticketed == false ? _unTicketedWidget() : _ticketedWidget()
+          )
         ],
       )
     );
