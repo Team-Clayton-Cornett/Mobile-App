@@ -3,6 +3,8 @@ import 'package:capstone_app/style/appTheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:capstone_app/models/garage.dart';
+import 'package:capstone_app/repositories/garageRepository.dart';
+import 'package:capstone_app/repositories/accountRepository.dart';
 
 import 'package:capstone_app/services/auth.dart';
 
@@ -12,27 +14,42 @@ class ReportPage extends StatefulWidget {
 }
 
 class ReportPageState extends State<ReportPage> {
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   ReportRepository _reportRepo = ReportRepository.getInstance();
 
+  AccountRepository _accountRepo = AccountRepository.getInstance();
+
+  GarageRepository _garageRepo = GarageRepository.getInstance();
+  List<Garage> _garages = List();
+  Future<List<Garage>> _garageFuture;
+
   DateTime _selectedDate;
-  var currentSelectedValue;
-  static const deviceTypes = ["Mac", "Windows", "Mobile"];
+  Garage currentSelectedValue;
 
   TimeOfDay _time = TimeOfDay.now();
   TimeOfDay picked;
 
-  void _applyNewFilterParams() {
+  void _reportGarage() {
 //    TimeOfDay newStartTime = _getTimeOfDayForIndex(_selectedTime.truncate());
-    DateTime newIntervalStart = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, _time.hour, _time.minute);
-
-    _reportRepo.intervalStart = newIntervalStart;
+    DateTime reportTime = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, _time.hour, _time.minute);
+   if(currentSelectedValue != null){
+     _accountRepo.reportTicketForGarage(reportTime, currentSelectedValue);
+     print("Reported");
+   }
   }
 
   @override
   void initState() {
     super.initState();
     _selectedDate = _reportRepo.intervalStart;
+    _garageFuture = _garageRepo.getGarages().timeout(Duration(seconds: 30));
+
+    _garageFuture.then((List<Garage> garages) async {
+      setState(() {
+        _garages = garages;
+      });
+    });
   }
 
   Widget _typeFieldWidget(){
@@ -41,35 +58,24 @@ class ReportPageState extends State<ReportPage> {
           top: 5.0,
           bottom: 5.0
       ),
-      child: FormField<String>(
-        builder: (FormFieldState<String> state) {
-          return InputDecorator(
-            decoration: InputDecoration(
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5.0))),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
+
+              child: DropdownButton<Garage>(
                 hint: Text("Select Garage"),
                 value: currentSelectedValue,
-                isDense: true,
-                onChanged: (newValue) {
+                onChanged: (Garage newValue) {
                   setState(() {
                     currentSelectedValue = newValue;
                   });
-                  print(currentSelectedValue);
+                  print(currentSelectedValue.name);
                 },
-                items: deviceTypes.map((String value) {
-                  return DropdownMenuItem<String>(
+                items: _garages.map((Garage value) {
+                  return DropdownMenuItem<Garage>(
                     value: value,
-                    child: Text(value),
+                    child: Text(value.name),
                   );
                 }).toList(),
               ),
-            ),
-          );
-        },
-      ),
-    );
+            );
   }
 
   Future<Null>selectTime(BuildContext context)async{
@@ -91,6 +97,7 @@ class ReportPageState extends State<ReportPage> {
 
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Report'),
         centerTitle: false,
@@ -138,9 +145,8 @@ class ReportPageState extends State<ReportPage> {
             ),
             MaterialButton(
               onPressed: () {
-                _applyNewFilterParams();
-
-                Navigator.pop(context);
+                _reportGarage();
+//                createSnackBar();
               },
               minWidth: double.infinity,
               shape: RoundedRectangleBorder(
@@ -214,5 +220,10 @@ class ReportPageState extends State<ReportPage> {
       ),
     );
   }
-
+//  void createSnackBar() {
+//    final snackBar = new SnackBar(content: new Text("Reported"));
+//
+//    // Find the Scaffold in the Widget tree and use it to show a SnackBar!
+//    Scaffold.of(scaffoldContext).showSnackBar(snackBar);
+//  }
 }

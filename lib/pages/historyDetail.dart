@@ -23,8 +23,10 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
   Garage _garage;
   Park _park;
   FilterRepository _filterRepo = FilterRepository.getInstance();
-  GarageRepository _garageRepository = GarageRepository.getInstance();
-  var _garages;
+  GarageRepository _garageRepo = GarageRepository.getInstance();
+  List<Garage> _garages = List();
+
+  Future<List<Garage>> _garageFuture;
 
   bool _Ticketed = false;
   bool _loadingTicketedState = true;
@@ -37,6 +39,8 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
   @override
   initState() {
     super.initState();
+
+    _garageFuture = _garageRepo.getGarages().timeout(Duration(seconds: 30));
   }
 
 
@@ -128,14 +132,23 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
 
   @override
   Widget build(BuildContext context) {
+    Set<Marker> markers = Set();
     if (_park == null) {
       _park = ModalRoute.of(context).settings.arguments;
-      _garages = _garageRepository.getGarages();
-//      for(var item in _garages){
-//        if(_park.garageId == item.id){
-//          _garage = item;
-//        }
-//      }
+      _garageFuture.then((List<Garage> garages) async {
+        for(Garage garage in garages) {
+          if(_park.garageId == garage.id){
+            _garage = garage;
+            if(_garage!= Null){
+              markers.add(Marker(
+                  markerId: MarkerId(_garage.name),
+                  position: _garage.location
+              ));
+            }
+            print(_garage.name);
+          }
+        }
+      });
     }
 
 //    Set<Marker> markers = Set();
