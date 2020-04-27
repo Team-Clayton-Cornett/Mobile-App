@@ -122,7 +122,7 @@ class ReportPageState extends State<ReportPage> {
             Expanded(
               child: CalendarCarousel(
                 selectedDateTime: _selectedDate,
-                minSelectedDate: DateTime.now().subtract(Duration(days: 1)),
+                maxSelectedDate: DateTime.now(),
                 onDayPressed: (date, events) {
                   setState(() {
                     _selectedDate = date;
