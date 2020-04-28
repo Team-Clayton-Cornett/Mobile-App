@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+//import 'dart:html';
 import 'dart:io';
 import 'package:capstone_app/repositories/accountRepository.dart';
 import 'package:capstone_app/repositories/historyRepository.dart';
@@ -60,6 +61,37 @@ class AuthService {
       return AuthArguments(errors: errors);
     }
   }
+
+  Future<AuthArguments> updateAccount(String email, String firstName, String lastName, String phone) async {
+    Map<String, String> requestBody = new Map<String, String>();
+    requestBody['email'] = email;
+    requestBody['first_name'] = firstName;
+    requestBody['last_name'] = lastName;
+    requestBody['phone'] = phone;
+
+    final response = await http.patch('https://claytoncornett.tk/api/user/', body: requestBody);
+    final responseBody = jsonDecode(response.body);
+
+    if (response.statusCode == 201) {
+      final token = requestBody['token'];
+      final storage = FlutterSecureStorage();
+      storage.write(key: 'auth_token', value: token);
+
+      return AuthArguments(token: token);
+    } else {
+      var errors = [];
+      var errorKeys = ['email', 'first_name', 'last_name', 'phone', 'password', 'non_field_errors'];
+
+      responseBody.forEach((key, value) {
+        if(errorKeys.contains(key)) {
+          errors += responseBody[key];
+        }
+      });
+
+      return AuthArguments(errors: errors);
+    }
+  }
+
 
   Future<AuthArguments> createAccount(String email, String firstName, String lastName, String phone, String password, String password2) async {
     Map<String, String> requestBody = new Map<String, String>();

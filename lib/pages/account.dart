@@ -57,12 +57,24 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   void submit(){
-
+    String email = _account.email;
     String firstName = _firstNameController.text;
     String lastName = _lastNameController.text;
     String phone = _phoneController.text;
+    print("Submit function called");
+
+    _account.firstName = firstName;
+    _account.lastName = lastName;
+    _account.phoneNumber = phone;
 
 
+    appAuth.updateAccount(email, firstName, lastName, phone).then((result) {
+      if (result.errors != null) {
+        print("Error");
+      } else {
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
+    });
   }
 
 
@@ -108,8 +120,7 @@ class _AccountPageState extends State<AccountPage> {
                 color: Colors.lightBlue,
             child: ListTile(
                   onTap: (){
-                    // open edit first name
-                    print("First Name Tapped");
+                    print("Email Tapped");
                   },
               title: Text(_account.email, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500,),),
                 )
