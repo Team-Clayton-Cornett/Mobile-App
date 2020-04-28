@@ -114,7 +114,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 color: Colors.blue,
               ),
               child: Text(
-                'App Name',
+                'PARKR',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,

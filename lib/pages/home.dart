@@ -287,7 +287,7 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.blue,
               ),
               child: Text(
-                'App Name',
+                'PARKR',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
