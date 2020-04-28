@@ -2,30 +2,28 @@ import 'package:capstone_app/repositories/reportRepository.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
-import 'package:capstone_app/models/garage.dart';
-import 'package:capstone_app/repositories/garageRepository.dart';
 import 'package:capstone_app/repositories/accountRepository.dart';
-
+import 'package:capstone_app/models/park.dart';
 import 'package:capstone_app/services/auth.dart';
 
-class ReportPage extends StatefulWidget {
+
+import 'package:intl/intl.dart';
+
+class ReportParkPage extends StatefulWidget {
   @override
-  ReportPageState createState() => ReportPageState();
+  ReportParkPageState createState() => ReportParkPageState();
 }
 
-class ReportPageState extends State<ReportPage> {
+class ReportParkPageState extends State<ReportParkPage> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   ReportRepository _reportRepo = ReportRepository.getInstance();
 
   AccountRepository _accountRepo = AccountRepository.getInstance();
 
-  GarageRepository _garageRepo = GarageRepository.getInstance();
-  List<Garage> _garages = List();
-  Future<List<Garage>> _garageFuture;
+  Park _park;
 
   DateTime _selectedDate;
-  Garage currentSelectedValue;
 
   TimeOfDay _time = TimeOfDay.now();
   TimeOfDay picked;
@@ -33,60 +31,30 @@ class ReportPageState extends State<ReportPage> {
   void _reportGarage() {
 //    TimeOfDay newStartTime = _getTimeOfDayForIndex(_selectedTime.truncate());
     DateTime reportTime = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, _time.hour, _time.minute);
-   if(currentSelectedValue != null){
-     _accountRepo.reportTicketForGarage(reportTime, currentSelectedValue);
-     print("Reported");
-     SnackBar snackBar = SnackBar(
-       content: Text("Reported"),
-     );
+    if(reportTime.isAfter(_park.start) && reportTime.isBefore(_park.end) ){
+//      _accountRepo.reportTicketForPark(reportTime, _park);
+      print("Reported");
+      SnackBar snackBar = SnackBar(
+        content: Text("Reported"),
+      );
 
-     _scaffoldKey.currentState.showSnackBar(snackBar);
-   } else{
-     SnackBar snackBar = SnackBar(
-       content: Text("Unable to Report Ticket"),
-     );
+      _scaffoldKey.currentState.showSnackBar(snackBar);
+    } else{
+      print("Ticket must be reported between parking hours");
+      SnackBar snackBar = SnackBar(
+        content: Text("Ticket must be between: " + new DateFormat.yMMMd().format(_park.start) + " " + new DateFormat.jm().format(_park.start)
+            + "-"+ new DateFormat.yMMMd().format(_park.end) + " " + new DateFormat.jm().format(_park.end)),
+        duration: Duration(seconds: 7),
+      );
 
-     _scaffoldKey.currentState.showSnackBar(snackBar);
-   }
+      _scaffoldKey.currentState.showSnackBar(snackBar);
+    }
   }
 
   @override
   void initState() {
     super.initState();
     _selectedDate = _reportRepo.intervalStart;
-    _garageFuture = _garageRepo.getGarages().timeout(Duration(seconds: 30));
-
-    _garageFuture.then((List<Garage> garages) async {
-      setState(() {
-        _garages = garages;
-      });
-    });
-  }
-
-  Widget _typeFieldWidget(){
-    return Padding(
-      padding: EdgeInsets.only(
-          top: 5.0,
-          bottom: 5.0
-      ),
-
-              child: DropdownButton<Garage>(
-                hint: Text("Select Garage"),
-                value: currentSelectedValue,
-                onChanged: (Garage newValue) {
-                  setState(() {
-                    currentSelectedValue = newValue;
-                  });
-                  print(currentSelectedValue.name);
-                },
-                items: _garages.map((Garage value) {
-                  return DropdownMenuItem<Garage>(
-                    value: value,
-                    child: Text(value.name),
-                  );
-                }).toList(),
-              ),
-            );
   }
 
   Future<Null>selectTime(BuildContext context)async{
@@ -94,6 +62,7 @@ class ReportPageState extends State<ReportPage> {
         context:context,
         initialTime:_time
     );
+
     if(picked!= null){
       setState((){
         _time=picked;
@@ -105,12 +74,16 @@ class ReportPageState extends State<ReportPage> {
   @override
   Widget build(BuildContext context) {
 //    String startTimeOfDay = _getTimeOfDayForIndex(_selectedTime.truncate()).format(context);
-
+  if(_park == null){
+    setState(() {
+      _park = ModalRoute.of(context).settings.arguments;
+    });
+  }
 
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Report'),
+        title: Text('Report '+ _park.garageName),
         centerTitle: false,
         iconTheme: IconThemeData(
             color: Colors.white
@@ -120,20 +93,19 @@ class ReportPageState extends State<ReportPage> {
         padding: EdgeInsets.all(20.0),
         child: Column(
           children: <Widget>[
-            _typeFieldWidget(),
-//            _typeTimeWidget(),
-          Center(
-            child: IconButton(
-              icon: Icon(Icons.alarm),
-              onPressed: (){
-                selectTime(context);
-              },
-            )
-          ),
+            Center(
+                child: IconButton(
+                  icon: Icon(Icons.alarm),
+                  onPressed: (){
+                    selectTime(context);
+                  },
+                )
+            ),
             Expanded(
               child: CalendarCarousel(
                 selectedDateTime: _selectedDate,
-                maxSelectedDate: DateTime.now(),
+                minSelectedDate: _park.start.subtract(Duration(days: 1)),
+                maxSelectedDate: _park.end,
                 onDayPressed: (date, events) {
                   setState(() {
                     _selectedDate = date;

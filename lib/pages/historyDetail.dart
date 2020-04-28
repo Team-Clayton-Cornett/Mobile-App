@@ -98,7 +98,9 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
           MaterialButton(
             onPressed: () {
               print("Reported");
-              _accountRepo.reportTicketForPark(DateTime.now(), _park);
+//              _accountRepo.reportTicketForPark(DateTime.now(), _park);
+
+              Navigator.pushNamed(context, 'history/history_details/report_park', arguments: _park);
               setState(() {
                 _Ticketed = true;
               });
@@ -135,12 +137,12 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
           if(_park.garageId == garage.id){
             setState(() {
               _garage = garage;
+//              markers.add(Marker(
+//                  markerId: MarkerId(_garage.name),
+//                  position: _garage.location
+//              ));
             });
             print(_garage.name);
-            markers.add(Marker(
-              markerId: MarkerId(_garage.name),
-              position: _garage.location
-            ));
           }
         }
       });
@@ -157,22 +159,22 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
       appBar: _buildAppBar(),
       body: Stack(
         children: <Widget>[
-//          Container(
-//            height: _preferredGoogleMapHeight == 0 ? MediaQuery.of(context).size.height * 0.45 : _preferredGoogleMapHeight,
-//            child: GoogleMap(
-//              initialCameraPosition: CameraPosition(
-////                  target: _garage.location,
-//                  zoom: 16.0
-//              ),
-////              markers: markers,
-//              myLocationButtonEnabled: false,
-//              scrollGesturesEnabled: false,
-//              zoomGesturesEnabled: false,
-//              rotateGesturesEnabled: false,
-//            ),
-//          ),
+          Container(
+            height: _preferredGoogleMapHeight == 0 ? MediaQuery.of(context).size.height * 0.45 : _preferredGoogleMapHeight,
+            child: GoogleMap(
+              initialCameraPosition: CameraPosition(
+                  target: _garage.location,
+                  zoom: 16.0
+              ),
+              markers: markers,
+              myLocationButtonEnabled: false,
+              scrollGesturesEnabled: false,
+              zoomGesturesEnabled: false,
+              rotateGesturesEnabled: false,
+            ),
+          ),
           Align(
-              alignment: Alignment.center,
+              alignment: Alignment.bottomCenter,
               child: Material(
                 key: _bottomSheetKey,
                 elevation: 8.0,
