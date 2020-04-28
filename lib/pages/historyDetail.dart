@@ -20,12 +20,10 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
   Garage _garage;
   Park _park;
 
-  AccountRepository _accountRepo = AccountRepository.getInstance();
-
   GarageRepository _garageRepo = GarageRepository.getInstance();
   Future<List<Garage>> _garageFuture;
 
-  bool _Ticketed = false;
+  bool _ticketed = false;
 
   GlobalKey _bottomSheetKey = GlobalKey();
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -51,45 +49,58 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
   }
 
   Widget _ticketedWidget(){
-    return  Align(
-        alignment: Alignment.bottomCenter,
-        child: Material(
-            elevation: 8.0,
-            child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Text(
-                  "TICKETED",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold
-                  ),
-                )
-            )
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          "Ticketed: ",
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20
+          ),
+        ),
+        Text(
+//          "TICKETED",
+          new DateFormat.yMMMd().format(_park.ticketDateTime) + " " +
+              new DateFormat.jm().format(_park.ticketDateTime),
+          style: TextStyle(
+              fontSize: 20
+          ),
         )
+      ],
     );
   }
 
   Widget _unTicketedWidget(){
-    return Padding(
-//      alignment: Alignment.bottomCenter,
-      padding: EdgeInsets.all(10.0),
-      child: Column(
+    return Column(
         children: <Widget>[
-          Center(
-            child: Text(
-            "NOT TICKETED",
-              style:TextStyle(
-                  fontWeight:FontWeight.bold
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                "Ticketed: ",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20
+                ),
+              ),
+              Text(
+                "NOT TICKETED",
+                style: TextStyle(
+                    fontSize: 20
+                ),
               )
-            ),
+            ],
           ),
+          SizedBox(height: 20),
           MaterialButton(
             onPressed: () {
               print("Reported");
-//              Navigator.pushNamed(context, 'history/history_details/report_park', arguments: _park);
-              setState(() {
-                _Ticketed = true;
-              });
-              print("Test" + _Ticketed.toString());
+              Navigator.pushNamed(context, 'history/history_details/report_park', arguments: _park);
+//              setState(() {
+//                _Ticketed = true;
+//              });
+              print("Test" + _ticketed.toString());
             },
             minWidth: double.infinity,
             shape: RoundedRectangleBorder(
@@ -101,7 +112,6 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
             ),
           )
         ]
-      )
     );
   }
 
@@ -112,11 +122,12 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
       setState(() {
         _park = ModalRoute.of(context).settings.arguments;
         if(_park.ticketDateTime == null){
-          _Ticketed = false;
+          _ticketed = false;
         } else{
-          _Ticketed = true;
+          _ticketed = true;
         }
       });
+//      print(_park.ticketDateTime);
       _garageFuture.then((List<Garage> garages) async {
         for(Garage garage in garages) {
           if(_park.garageId == garage.id){
@@ -128,6 +139,7 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
               ));
 //              print(garage.location);
             });
+//            print(_park.garageName);
             print(_garage.name);
           }
         }
@@ -161,27 +173,49 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
                 rotateGesturesEnabled: false,
               ),
             ),
-            Padding(
-//                alignment: Alignment.bottomCenter,
-                padding: EdgeInsets.all(10.0),
-                child: Material(
-                    key: _bottomSheetKey,
-                    elevation: 8.0,
-                    child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: Text(
-                          "Start Date: " + new DateFormat.yMMMd().format(_park.start) + "\n" + new DateFormat.jm().format(_park.start) + "\n"
-                              "End Date: " + new DateFormat.yMMMd().format(_park.end) + "\n" + new DateFormat.jm().format(_park.end) + "\n",
-                          //              "End Date: " + _park.end.toString()
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold
-                          ),
-                        )
-                    )
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  "Start Date: ",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20
+                  ),
+                ),
+                Text(
+                    new DateFormat.yMMMd().format(_park.start) + " " +
+                        new DateFormat.jm().format(_park.start),
+                    style: TextStyle(
+                      fontSize: 20
+                    ),
                 )
+              ],
             ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  "End Date: ",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20
+                  ),
+                ),
+                Text(
+                  new DateFormat.yMMMd().format(_park.end) + " " +
+                        new DateFormat.jm().format(_park.end),
+                  style: TextStyle(
+                      fontSize: 20
+                  ),
+                )
+              ],
+            ),
+            SizedBox(height: 20),
             Center(
-                child: _Ticketed == false ? _unTicketedWidget() : _ticketedWidget()
+                child: _ticketed == false ? _unTicketedWidget() : _ticketedWidget()
             )
           ],
         )

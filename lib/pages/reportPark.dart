@@ -32,13 +32,14 @@ class ReportParkPageState extends State<ReportParkPage> {
 //    TimeOfDay newStartTime = _getTimeOfDayForIndex(_selectedTime.truncate());
     DateTime reportTime = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, _time.hour, _time.minute);
     if(reportTime.isAfter(_park.start) && reportTime.isBefore(_park.end) ){
-//      _accountRepo.reportTicketForPark(reportTime, _park);
+      _accountRepo.reportTicketForPark(reportTime, _park);
       print("Reported");
       SnackBar snackBar = SnackBar(
         content: Text("Reported"),
       );
 
       _scaffoldKey.currentState.showSnackBar(snackBar);
+//      Navigator.of(context).pushReplacementNamed('/history');
     } else{
       print("Ticket must be reported between parking hours");
       SnackBar snackBar = SnackBar(
