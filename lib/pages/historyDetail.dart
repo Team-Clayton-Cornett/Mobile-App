@@ -1,12 +1,9 @@
 import 'package:after_layout/after_layout.dart';
-import 'package:capstone_app/components/probabilityIndicator.dart';
 import 'package:capstone_app/models/garage.dart';
 import 'package:capstone_app/models/park.dart';
 import 'package:capstone_app/repositories/accountRepository.dart';
-import 'package:capstone_app/repositories/filterRepository.dart';
 import 'package:capstone_app/repositories/garageRepository.dart';
 import 'package:capstone_app/style/appTheme.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
@@ -26,8 +23,6 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
   AccountRepository _accountRepo = AccountRepository.getInstance();
 
   GarageRepository _garageRepo = GarageRepository.getInstance();
-  List<Garage> _garages = List();
-
   Future<List<Garage>> _garageFuture;
 
   bool _Ticketed = false;
@@ -49,14 +44,6 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
     return AppBar(
       title: Text(_park.garageName),
       centerTitle: false,
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.filter_list),
-          onPressed: () {
-            Navigator.pushNamed(context, '/home/filter');
-          },
-        )
-      ],
       iconTheme: IconThemeData(
           color: Colors.white
       ),
@@ -69,7 +56,7 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
         child: Material(
             elevation: 8.0,
             child: Padding(
-                padding: EdgeInsets.all(30.0),
+                padding: EdgeInsets.all(20.0),
                 child: Text(
                   "TICKETED",
                   style: TextStyle(
@@ -84,7 +71,7 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
   Widget _unTicketedWidget(){
     return Padding(
 //      alignment: Alignment.bottomCenter,
-      padding: EdgeInsets.all(20.0),
+      padding: EdgeInsets.all(10.0),
       child: Column(
         children: <Widget>[
           Center(
@@ -98,9 +85,7 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
           MaterialButton(
             onPressed: () {
               print("Reported");
-//              _accountRepo.reportTicketForPark(DateTime.now(), _park);
-
-              Navigator.pushNamed(context, 'history/history_details/report_park', arguments: _park);
+//              Navigator.pushNamed(context, 'history/history_details/report_park', arguments: _park);
               setState(() {
                 _Ticketed = true;
               });
@@ -137,10 +122,11 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
           if(_park.garageId == garage.id){
             setState(() {
               _garage = garage;
-//              markers.add(Marker(
-//                  markerId: MarkerId(_garage.name),
-//                  position: _garage.location
-//              ));
+              markers.add(Marker(
+                  markerId: MarkerId(garage.name),
+                  position: garage.location
+              ));
+//              print(garage.location);
             });
             print(_garage.name);
           }
@@ -157,44 +143,48 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
     return Scaffold(
       key: _scaffoldKey,
       appBar: _buildAppBar(),
-      body: Stack(
-        children: <Widget>[
-          Container(
-            height: _preferredGoogleMapHeight == 0 ? MediaQuery.of(context).size.height * 0.45 : _preferredGoogleMapHeight,
-            child: GoogleMap(
-              initialCameraPosition: CameraPosition(
-                  target: _garage.location,
-                  zoom: 16.0
+      body: Padding(
+          padding: EdgeInsets.all(10.0),
+        child: Column(
+          children: <Widget>[
+            Container(
+              height: _preferredGoogleMapHeight == 0 ? MediaQuery.of(context).size.height * 0.45 : _preferredGoogleMapHeight,
+              child: GoogleMap(
+                initialCameraPosition: CameraPosition(
+                    target: _garage.location,
+                    zoom: 16.0
+                ),
+                markers: markers,
+                myLocationButtonEnabled: false,
+//              scrollGesturesEnabled: false,
+//              zoomGesturesEnabled: false,
+                rotateGesturesEnabled: false,
               ),
-              markers: markers,
-              myLocationButtonEnabled: false,
-              scrollGesturesEnabled: false,
-              zoomGesturesEnabled: false,
-              rotateGesturesEnabled: false,
             ),
-          ),
-          Align(
-              alignment: Alignment.bottomCenter,
-              child: Material(
-                key: _bottomSheetKey,
-                elevation: 8.0,
-                child: Padding(
-                    padding: EdgeInsets.all(30.0),
-                    child: Text(
-                        "Start Date: " + new DateFormat.yMMMd().format(_park.start) + "\n" + new DateFormat.jm().format(_park.start) + "\n"
-                            "End Date: " + new DateFormat.yMMMd().format(_park.end) + "\n" + new DateFormat.jm().format(_park.end) + "\n",
-                      //              "End Date: " + _park.end.toString()
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold
-                        ),
-                      )
+            Padding(
+//                alignment: Alignment.bottomCenter,
+                padding: EdgeInsets.all(10.0),
+                child: Material(
+                    key: _bottomSheetKey,
+                    elevation: 8.0,
+                    child: Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: Text(
+                          "Start Date: " + new DateFormat.yMMMd().format(_park.start) + "\n" + new DateFormat.jm().format(_park.start) + "\n"
+                              "End Date: " + new DateFormat.yMMMd().format(_park.end) + "\n" + new DateFormat.jm().format(_park.end) + "\n",
+                          //              "End Date: " + _park.end.toString()
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold
+                          ),
+                        )
+                    )
                 )
-              )
-          ),
-          Center(
-              child: _Ticketed == false ? _unTicketedWidget() : _ticketedWidget()
-          )
-        ],
+            ),
+            Center(
+                child: _Ticketed == false ? _unTicketedWidget() : _ticketedWidget()
+            )
+          ],
+        )
       )
     );
   }
