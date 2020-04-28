@@ -1,8 +1,10 @@
+import 'package:capstone_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_app/services/auth.dart';
 import 'package:capstone_app/repositories/accountRepository.dart';
 import 'package:capstone_app/models/account.dart';
 import 'package:capstone_app/models/authentication.dart';
+import 'package:capstone_app/style/appTheme.dart';
 
 class AccountPage extends StatefulWidget {
   AccountPage({Key key}) : super(key: key);
@@ -15,15 +17,21 @@ class _AccountPageState extends State<AccountPage> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   AccountRepository _accountRepo = AccountRepository.getInstance();
-
+  TextStyle _style;
   Future<Account> accountInfo;
   Account _account;
   AuthArguments _args;
+
+  TextEditingController _firstNameController;
+  TextEditingController _lastNameController;
+  TextEditingController _phoneController;
 
   @override
   initState() {
     super.initState();
 
+
+    _style = getAppTheme().primaryTextTheme.body1;
     accountInfo = _accountRepo.getAccount();
 
     accountInfo.then((Account account) async {
@@ -44,6 +52,17 @@ class _AccountPageState extends State<AccountPage> {
 
   });
 
+
+
+  }
+
+  void submit(){
+
+    String firstName = _firstNameController.text;
+    String lastName = _lastNameController.text;
+    String phone = _phoneController.text;
+
+
   }
 
 
@@ -53,6 +72,11 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    _firstNameController = TextEditingController(text: _account.firstName);
+    _lastNameController = TextEditingController(text: _account.lastName);
+    _phoneController = TextEditingController(text: _account.phoneNumber);
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -83,15 +107,6 @@ class _AccountPageState extends State<AccountPage> {
                 margin: const EdgeInsets.all(20.0),
                 color: Colors.lightBlue,
             child: ListTile(
-//                child: TextFormField(
-//                  style: TextStyle(
-//                    color: Colors.white,
-//                    fontWeight: FontWeight.w500,
-//                  ),
-//                  decoration: InputDecoration(
-//                    contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-//                    hintText: _account.email,
-//                  ),
                   onTap: (){
                     // open edit first name
                     print("First Name Tapped");
@@ -117,6 +132,7 @@ class _AccountPageState extends State<AccountPage> {
             color: Colors.lightBlue,
 //            child: ListTile(
              child: TextFormField(
+               controller: _firstNameController,
                style: TextStyle(
                  color: Colors.white,
                  fontWeight: FontWeight.w500,
@@ -129,8 +145,6 @@ class _AccountPageState extends State<AccountPage> {
                 // open edit first name
                 print("First Name Tapped");
               },
-//            title: Text("John", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500,),),
-//            trailing: Icon(Icons.edit, color: Colors.white,),
             )
           ),
 
@@ -150,6 +164,7 @@ class _AccountPageState extends State<AccountPage> {
               margin: const EdgeInsets.all(20.0),
               color: Colors.lightBlue,
                 child: TextFormField(
+                  controller: _lastNameController,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
@@ -181,6 +196,7 @@ class _AccountPageState extends State<AccountPage> {
               margin: const EdgeInsets.all(20.0),
               color: Colors.lightBlue,
                 child: TextFormField(
+                  controller: _phoneController,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
@@ -194,6 +210,34 @@ class _AccountPageState extends State<AccountPage> {
                     print("Phone Number Tapped");
                   },
                 )
+            ),
+
+            const SizedBox(height: 10.0),
+
+            Center(
+            child: Container(
+              width: 200,
+
+            child: Card(
+              // margin: const EdgeInsets.fromLTRB(32.0, 8.0, 32.0, 16.0),
+              margin: const EdgeInsets.all(20.0),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(200.0)),
+              color: Colors.blue,
+              child: Column(
+                children: <Widget>[
+                  ListTile(
+
+                    title: Text("Save Changes", textAlign: TextAlign.center,),
+                    onTap: (){
+                      // open change password
+                      print("Save Changes Tapped");
+                      submit();
+                    },
+                  ),
+                ],
+              ),
+            ),
+            ),
             ),
 
             const SizedBox(height: 10.0),
