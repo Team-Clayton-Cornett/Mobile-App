@@ -32,7 +32,7 @@ class _AccountPageState extends State<AccountPage> {
   @override
   initState() {
     super.initState();
-
+//    _accountRepo.invalidateCurrentAccount();
 
     _style = getAppTheme().primaryTextTheme.body1;
     accountInfo = _accountRepo.getAccount();
@@ -61,7 +61,7 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   void submit() {
-//    _accountRepo.invalidateCurrentAccount();
+
 
     String email = _account.email;
     String firstName = _firstNameController.text;

@@ -53,7 +53,8 @@ class AuthService {
       final responseBody = jsonDecode(response.body);
       print(requestBody);
       if (response.statusCode == 200) {
-        await AccountRepository.getInstance().getAccount();
+        //await AccountRepository.getInstance().getAccount();
+//        await AccountRepository.getInstance().invalidateCurrentAccount();
         storage.write(key: 'auth_token', value: token);
         return true;
       } else {
