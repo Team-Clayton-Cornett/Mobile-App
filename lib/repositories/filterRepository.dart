@@ -15,12 +15,12 @@ class FilterRepository {
 
     // Round the new interval start to an even 15 minute boundary
     newIntervalStart = newIntervalStart.subtract(
-      Duration(
-        minutes: newIntervalStart.minute % 15,
-        seconds: newIntervalStart.second,
-        milliseconds: newIntervalStart.millisecond,
-        microseconds: newIntervalStart.microsecond
-      )
+        Duration(
+            minutes: newIntervalStart.minute % 15,
+            seconds: newIntervalStart.second,
+            milliseconds: newIntervalStart.millisecond,
+            microseconds: newIntervalStart.microsecond
+        )
     );
 
     _intervalStart = newIntervalStart;
@@ -35,12 +35,12 @@ class FilterRepository {
 
     // Round the new interval end to an even 15 minute boundary
     newIntervalEnd = newIntervalEnd.subtract(
-      Duration(
-        minutes: newIntervalEnd.minute % 15,
-        seconds: newIntervalEnd.second,
-        milliseconds: newIntervalEnd.millisecond,
-        microseconds: newIntervalEnd.microsecond
-      )
+        Duration(
+            minutes: newIntervalEnd.minute % 15,
+            seconds: newIntervalEnd.second,
+            milliseconds: newIntervalEnd.millisecond,
+            microseconds: newIntervalEnd.microsecond
+        )
     );
 
     _intervalEnd = newIntervalEnd;
@@ -49,7 +49,17 @@ class FilterRepository {
   FilterRepository._initialize(Clock clock) {
     // Default the filter interval to a 1 hour interval starting in the current time slot
     intervalStart = clock.now();
-    intervalEnd = intervalStart.add(Duration(hours: 1));
+
+    DateTime defaultIntervalEnd = intervalStart.add(Duration(hours: 1));
+
+    // If the interval overlaps a day boundary, it should be truncated so that it ends at midnight
+    if (defaultIntervalEnd.day != intervalStart.day) {
+      defaultIntervalEnd = defaultIntervalEnd.subtract(Duration(
+          minutes: defaultIntervalEnd.minute
+      ));
+    }
+
+    intervalEnd = defaultIntervalEnd;
   }
 
   static FilterRepository getInstance([Clock clock]) {

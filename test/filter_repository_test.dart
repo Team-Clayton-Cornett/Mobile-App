@@ -19,6 +19,19 @@ void main() {
       expect(filterRepo.intervalStart, mockedCurrentDateTime);
       expect(filterRepo.intervalEnd, mockedCurrentDateTime.add(Duration(hours: 1)));
     });
+
+    test('Repository is initialized after 11PM', () {
+      MockClock clock = MockClock();
+
+      DateTime mockedCurrentDateTime = DateTime.parse('2020-01-06T23:30:00');
+
+      when(clock.now()).thenReturn(mockedCurrentDateTime);
+
+      FilterRepository filterRepo = FilterRepository.getInstance(clock);
+
+      expect(filterRepo.intervalStart, mockedCurrentDateTime);
+      expect(filterRepo.intervalEnd, DateTime.parse('2020-01-07T00:00:00'));
+    });
   });
 
   group('Start interval before end interval', () {

@@ -193,6 +193,8 @@ class AccountRepository {
         if (response.statusCode != 201) {
           return Future.error("Http Status Code: ${response.statusCode} Body: ${response.body}");
         }
+
+        HistoryRepository.getInstance().invalidateCachedHistory();
       }
     );
   }

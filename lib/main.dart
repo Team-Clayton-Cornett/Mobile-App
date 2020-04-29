@@ -1,16 +1,21 @@
 import 'package:capstone_app/pages/account.dart';
+import 'package:capstone_app/pages/about.dart';
 import 'package:capstone_app/pages/filter.dart';
 import 'package:capstone_app/pages/garageDetail.dart';
+import 'package:capstone_app/pages/historyDetail.dart';
+import 'package:capstone_app/pages/reportPark.dart';
 import 'package:flutter/material.dart';
 
 import 'style/appTheme.dart';
 import 'pages/home.dart';
 import 'pages/login.dart';
+import 'pages/report.dart';
 import 'pages/forgot_password.dart';
 import 'pages/forgot_password_validate.dart';
 import 'pages/forgot_password_reset.dart';
 import 'pages/create_account.dart';
 import 'services/auth.dart';
+import 'pages/history.dart';
 
 AuthService appAuth = new AuthService();
 
@@ -42,6 +47,10 @@ class MyApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         '/home': (context) => HomePage(),
         '/login': (context) => LoginPage(),
+        '/report': (context) => ReportPage(),
+        '/history': (context) => HistoryPage(),
+        '/history/history_details': (context) => HistoryDetailPage(),
+        'history/history_details/report_park': (context) => ReportParkPage(),
         '/forgot_password': (context) => ForgotPasswordPage(),
         '/forgot_password/validate': (context) => ForgotPasswordValidatePage(),
         '/forgot_password/reset': (context) => ForgotPasswordResetPage(),
@@ -49,6 +58,7 @@ class MyApp extends StatelessWidget {
         '/home/garage_details': (context) => GarageDetailPage(),
         '/home/filter': (context) => FilterPage(),
         '/account': (context) => AccountPage(),
+        '/about': (context) => AboutPage(),
       },
     );
   }
