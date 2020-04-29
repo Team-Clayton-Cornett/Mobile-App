@@ -5,9 +5,9 @@ import 'package:capstone_app/components/clusterableMapMarker.dart';
 import 'package:capstone_app/components/garageCard.dart';
 import 'package:capstone_app/components/garageListSearchDelegate.dart';
 import 'package:capstone_app/components/handle.dart';
+import 'package:capstone_app/components/navigationDrawer.dart';
 import 'package:capstone_app/models/garage.dart';
 import 'package:capstone_app/repositories/garageRepository.dart';
-import 'package:capstone_app/services/auth.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:fluster/fluster.dart';
 import 'package:flutter/material.dart';
@@ -278,72 +278,8 @@ class _HomePageState extends State<HomePage> {
         },
       ),
 
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            Container(
-              height: 150.0,
-              child: DrawerHeader(
-                decoration: BoxDecoration(
-                  color: getAppTheme().primaryColor,
-                ),
-                child: Text(
-                  'PARKR',
-                  style: TextStyle(
-                    color: getAppTheme().accentColor,
-                    fontSize: 24,
-                  ),
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: () {
-                Navigator.of(context).pushReplacementNamed('/home');
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.report),
-              title: Text('Report'),
-              onTap: () {
-                Navigator.of(context).pushReplacementNamed('/report');
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.history),
-              title: Text('History'),
-              onTap: () {
-                Navigator.of(context).pushReplacementNamed('/history');
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.account_circle),
-              title: Text('Account'),
-              onTap: () {
-                Navigator.pushNamed(context, "/account");
-              }
-            ),
-            ListTile(
-              leading: Icon(Icons.help),
-              title: Text('About'),
-              onTap: () {
-                Navigator.pushNamed(context, "/about");
-                 }
-               ),
-            ListTile(
-              leading: Icon(Icons.directions_run),
-              title: Text('Sign Out'),
-              onTap: () {
-                AuthService appAuth = new AuthService();
-                appAuth.logout();
-
-                Navigator.pushNamedAndRemoveUntil(context, "/login", (r) => false);
-              },
-            ),
-          ],
-        ),
+      drawer: NavigationDrawer(
+        currentPage: widget,
       ),
     );
   }
