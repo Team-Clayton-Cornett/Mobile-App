@@ -137,6 +137,9 @@ class _HistoryPageState extends State<HistoryPage> {
             ListTile(
               leading: Icon(Icons.report),
               title: Text('Report'),
+              onTap: () {
+                Navigator.of(context).pushReplacementNamed('/report');
+              },
             ),
             ListTile(
               leading: Icon(Icons.history),

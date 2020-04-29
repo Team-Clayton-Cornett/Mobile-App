@@ -23,6 +23,9 @@ class HistoryCard extends StatelessWidget{
         margin: EdgeInsets.fromLTRB(15.5, 5.0, 15.0, 15.0),
         elevation: 1.0,
         child: InkWell(
+          onTap: () {
+            Navigator.pushNamed(context, '/history/history_details', arguments: historyPark);
+          },
           child: Padding(
             padding: EdgeInsets.all(15.0),
             child: Row(
