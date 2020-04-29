@@ -14,6 +14,7 @@ class Account {
   });
 
   Account.fromJson(Map<String, dynamic> json) :
+    assert(json['email'] != null),
     email = json['email'],
     firstName = json['first_name'],
     lastName = json['last_name'],

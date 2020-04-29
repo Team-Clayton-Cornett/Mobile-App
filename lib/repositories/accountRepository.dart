@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountRepository {
-  static final AccountRepository _instance = AccountRepository._initialize();
+  static AccountRepository _instance;
 
   Account _account;
   String _token;
@@ -21,6 +21,10 @@ class AccountRepository {
   AccountRepository._initialize();
 
   static AccountRepository getInstance() {
+    if (_instance == null) {
+      _instance = AccountRepository._initialize();
+    }
+
     return _instance;
   }
 
