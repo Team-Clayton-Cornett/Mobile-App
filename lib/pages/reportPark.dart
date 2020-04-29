@@ -1,10 +1,10 @@
+import 'package:capstone_app/components/navigationDrawer.dart';
 import 'package:capstone_app/repositories/reportRepository.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:capstone_app/repositories/accountRepository.dart';
 import 'package:capstone_app/models/park.dart';
-import 'package:capstone_app/services/auth.dart';
 
 
 import 'package:intl/intl.dart';
@@ -145,63 +145,8 @@ class ReportParkPageState extends State<ReportParkPage> {
           ],
         ),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'App Name',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: (){
-                Navigator.of(context).pushReplacementNamed('/home');
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.report),
-              title: Text('Report'),
-              onTap: () {
-                Navigator.of(context).pushReplacementNamed('/report');
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.history),
-              title: Text('History'),
-              onTap: () {
-                Navigator.of(context).pushReplacementNamed('/history');
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.account_circle),
-              title: Text('Account'),
-            ),
-            ListTile(
-              leading: Icon(Icons.help),
-              title: Text('About'),
-            ),
-            ListTile(
-              leading: Icon(Icons.directions_run),
-              title: Text('Sign Out'),
-              onTap: () {
-                AuthService appAuth = new AuthService();
-                appAuth.logout();
-
-                Navigator.pushNamedAndRemoveUntil(context, "/login", (r) => false);
-              },
-            ),
-          ],
-        ),
+      drawer: NavigationDrawer(
+        currentPage: widget,
       ),
     );
   }

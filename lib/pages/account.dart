@@ -1,13 +1,10 @@
-import 'dart:convert';
-
+import 'package:capstone_app/components/navigationDrawer.dart';
 import 'package:capstone_app/main.dart';
 import 'package:flutter/material.dart';
-import 'package:capstone_app/services/auth.dart';
 import 'package:capstone_app/repositories/accountRepository.dart';
 import 'package:capstone_app/models/account.dart';
 import 'package:capstone_app/models/authentication.dart';
 import 'package:capstone_app/style/appTheme.dart';
-import 'package:capstone_app/components/handle.dart';
 
 class AccountPage extends StatefulWidget {
   AccountPage({Key key}) : super(key: key);
@@ -154,66 +151,8 @@ class _AccountPageState extends State<AccountPage> {
         body: Container(
           child: futureBuilder,
         ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: getAppTheme().primaryColor,
-              ),
-              child: Text(
-                'PARKR',
-                style: TextStyle(
-                  color: getAppTheme().accentColor,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: (){
-                Navigator.of(context).pushReplacementNamed('/home');
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.report),
-              title: Text('Report'),
-            ),
-            ListTile(
-              leading: Icon(Icons.history),
-              title: Text('History'),
-              onTap: () {
-                Navigator.pushNamedAndRemoveUntil(context, "/history", (r) => false);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.account_circle),
-              title: Text('Account'),
-              onTap: () {
-                Navigator.pushNamedAndRemoveUntil(context, "/account", (r) => false);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.help),
-              title: Text('About'),
-              onTap: () {
-                Navigator.pushNamedAndRemoveUntil(context, "/about", (r) => false);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.directions_run),
-              title: Text('Sign Out'),
-              onTap: () {
-                AuthService appAuth = new AuthService();
-                appAuth.logout();
-
-                Navigator.pushNamedAndRemoveUntil(context, "/login", (r) => false);
-              },
-            ),
-          ],
-        ),
+      drawer: NavigationDrawer(
+        currentPage: widget,
       ),
 
     );
