@@ -246,12 +246,12 @@ class _AccountPageState extends State<AccountPage> {
                   borderRadius: BorderRadius.circular(10.0)),
               margin: const EdgeInsets.all(20.0),
               color: getAppTheme().primaryColor,
-              child: ListTile(
-                onTap: () {
-                  print("Email Tapped");
-                },
-                title: Text(_account.email, style: TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.w500,),),
+              child: Center(
+//                onTap: () {
+//                  print("Email Tapped");
+//                },
+                child: Text(_account.email, style: TextStyle(
+                  color: Colors.white, fontSize: 24, fontWeight: FontWeight.w500,),),
               )
           ),
 
