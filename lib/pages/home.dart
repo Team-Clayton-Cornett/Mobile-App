@@ -282,15 +282,18 @@ class _HomePageState extends State<HomePage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'App Name',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+            Container(
+              height: 150.0,
+              child: DrawerHeader(
+                decoration: BoxDecoration(
+                  color: getAppTheme().primaryColor,
+                ),
+                child: Text(
+                  'PARKR',
+                  style: TextStyle(
+                    color: getAppTheme().accentColor,
+                    fontSize: 24,
+                  ),
                 ),
               ),
             ),
@@ -305,6 +308,9 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               leading: Icon(Icons.history),
               title: Text('History'),
+              onTap: () {
+                Navigator.of(context).pushReplacementNamed('/history');
+              },
             ),
             ListTile(
               leading: Icon(Icons.account_circle),
