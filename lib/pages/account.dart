@@ -25,6 +25,7 @@ class _AccountPageState extends State<AccountPage> {
   TextEditingController _firstNameController;
   TextEditingController _lastNameController;
   TextEditingController _phoneController;
+  GlobalKey<FormState> _formKey;
 
   @override
   initState() {
@@ -33,6 +34,7 @@ class _AccountPageState extends State<AccountPage> {
 
     _style = getAppTheme().primaryTextTheme.body1;
     accountInfo = _accountRepo.getAccount();
+    _formKey = GlobalKey<FormState>();
 
     accountInfo.then((Account account) async {
       setState(() {
@@ -56,30 +58,49 @@ class _AccountPageState extends State<AccountPage> {
 
   }
 
-  void submit(){
+  void submit() {
     String email = _account.email;
     String firstName = _firstNameController.text;
     String lastName = _lastNameController.text;
     String phone = _phoneController.text;
     print("Submit function called");
 
-    _account.firstName = firstName;
-    _account.lastName = lastName;
-    _account.phoneNumber = phone;
+//    _account.firstName = firstName;
+//    _account.lastName = lastName;
+//    _account.phoneNumber = phone;
 
 
-    appAuth.updateAccount(email, firstName, lastName, phone).then((result) {
-      if (result.errors != null) {
-        print("Error");
-      } else {
-        Navigator.of(context).pushReplacementNamed('/home');
-      }
-    });
+    if (_formKey.currentState.validate()) {
+      appAuth.updateAccount(email, firstName, lastName, phone).then((result) {
+        if (result.errors != null) {
+          print("Error");
+        } else {
+          Widget okButton = FlatButton(
+            child: Text("OK"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          );
+
+          AlertDialog alert = AlertDialog(
+            title: Text("Settings"),
+            content: Text("Your settings have been saved successfully"),
+            actions: [
+              okButton,
+            ],
+          );
+
+          showDialog(context: context,
+          builder: (BuildContext context){
+            return alert;
+          },
+          );
+
+         // Navigator.of(context).pushReplacementNamed('/home');
+        }
+      });
+    }
   }
-
-
-
-
 
 
   @override
@@ -257,10 +278,12 @@ class _AccountPageState extends State<AccountPage> {
 
             const SizedBox(height: 10.0),
 
+
             Center(
             child: Container(
               width: 200,
-
+            child: Form(
+              key: _formKey,
             child: Card(
               // margin: const EdgeInsets.fromLTRB(32.0, 8.0, 32.0, 16.0),
               margin: const EdgeInsets.all(20.0),
@@ -279,6 +302,7 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                 ],
               ),
+            ),
             ),
             ),
             ),
