@@ -144,6 +144,17 @@ class _AccountPageState extends State<AccountPage> {
 //            child: ListTile(
              child: TextFormField(
                controller: _firstNameController,
+               validator: (firstName) {
+                 if(firstName.isEmpty) {
+                   return 'This field is required.';
+                 }
+
+                 if(firstName.length > 30) {
+                   return 'First name cannot exceed 30 characters.';
+                 }
+
+                 return null;
+               },
                style: TextStyle(
                  color: Colors.white,
                  fontWeight: FontWeight.w500,
@@ -176,6 +187,17 @@ class _AccountPageState extends State<AccountPage> {
               color: Colors.lightBlue,
                 child: TextFormField(
                   controller: _lastNameController,
+                  validator: (lastName) {
+                    if(lastName.isEmpty) {
+                      return 'This field is required.';
+                    }
+
+                    if(lastName.length > 150) {
+                      return 'Last name cannot exceed 150 characters.';
+                    }
+
+                    return null;
+                  },
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
@@ -208,6 +230,16 @@ class _AccountPageState extends State<AccountPage> {
               color: Colors.lightBlue,
                 child: TextFormField(
                   controller: _phoneController,
+                  validator: (phone) {
+                    RegExp phoneRegExp = RegExp(r'^\+?1?\d{9,15}$');
+
+                    if(phone.isNotEmpty && !phoneRegExp.hasMatch(phone)) {
+
+                      return 'Phone number must be entered in the format: \'+999999999\'.';
+                    }
+
+                    return null;
+                  },
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
@@ -267,7 +299,7 @@ class _AccountPageState extends State<AccountPage> {
                       print("Change Password Tapped");
                       Navigator.pushNamed(
                           context,
-                          '/forgot_password/reset',
+                          '/forgot_password',
                           arguments: AuthArguments(email: _account.email, token: null)
                       );
                     },

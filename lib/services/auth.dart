@@ -33,6 +33,47 @@ class AuthService {
     }
   }
 
+  Future<AuthArguments> updateAccount(String email, String firstName, String lastName, String phone) async {
+    Map<String, String> requestBody = new Map<String, String>();
+
+    final storage = new FlutterSecureStorage();
+    String token = await storage.read(key: 'auth_token');
+
+    requestBody['email'] = email;
+    requestBody['first_name'] = firstName;
+    requestBody['last_name'] = lastName;
+    requestBody['phone'] = phone;
+
+    if (token != null) {
+      final response = await http.patch(
+          'https://claytoncornett.tk/api/user/',
+          headers: {HttpHeaders.authorizationHeader: "Token $token"}
+      );
+      final responseBody = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        storage.write(key: 'auth_token', value: token);
+        return AuthArguments(token: token);
+      } else {
+        var errors = [];
+        var errorKeys = [
+          'email',
+          'first_name',
+          'last_name',
+          'phone',
+          'non_field_errors'
+        ];
+
+        responseBody.forEach((key, value) {
+          if (errorKeys.contains(key)) {
+            errors += responseBody[key];
+          }
+        });
+
+        return AuthArguments(errors: errors);
+      }
+    }
+  }
+
   // Login
   Future<AuthArguments> login(String email, String password) async {
     Map<String, String> requestBody = new Map<String, String>();
@@ -51,36 +92,6 @@ class AuthService {
     } else {
       var errors = [];
       var errorKeys = ['email', 'password', 'non_field_errors'];
-
-      responseBody.forEach((key, value) {
-        if(errorKeys.contains(key)) {
-          errors += responseBody[key];
-        }
-      });
-
-      return AuthArguments(errors: errors);
-    }
-  }
-
-  Future<AuthArguments> updateAccount(String email, String firstName, String lastName, String phone) async {
-    Map<String, String> requestBody = new Map<String, String>();
-    requestBody['email'] = email;
-    requestBody['first_name'] = firstName;
-    requestBody['last_name'] = lastName;
-    requestBody['phone'] = phone;
-
-    final response = await http.patch('https://claytoncornett.tk/api/user/', body: requestBody);
-    final responseBody = jsonDecode(response.body);
-
-    if (response.statusCode == 201) {
-      final token = requestBody['token'];
-      final storage = FlutterSecureStorage();
-      storage.write(key: 'auth_token', value: token);
-
-      return AuthArguments(token: token);
-    } else {
-      var errors = [];
-      var errorKeys = ['email', 'first_name', 'last_name', 'phone', 'password', 'non_field_errors'];
 
       responseBody.forEach((key, value) {
         if(errorKeys.contains(key)) {
