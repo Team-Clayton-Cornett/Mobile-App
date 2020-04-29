@@ -20,7 +20,7 @@ class _AccountPageState extends State<AccountPage> {
 
   AccountRepository _accountRepo = AccountRepository.getInstance();
   TextStyle _style;
-  Future<Account> accountInfo;
+  Future<Account> accountFuture;
   Account _account;
   AuthArguments _args;
 
@@ -35,10 +35,10 @@ class _AccountPageState extends State<AccountPage> {
 //    _accountRepo.invalidateCurrentAccount();
 
     _style = getAppTheme().primaryTextTheme.body1;
-    accountInfo = _accountRepo.getAccount();
+    accountFuture = _accountRepo.getAccount();
     _formKey = GlobalKey<FormState>();
 
-    accountInfo.then((Account account) async {
+    accountFuture.then((Account account) async {
       setState(() {
         _account = account;
       });
@@ -56,8 +56,6 @@ class _AccountPageState extends State<AccountPage> {
 
   });
 
-
-
   }
 
   void submit() {
@@ -69,13 +67,16 @@ class _AccountPageState extends State<AccountPage> {
     String phone = _phoneController.text;
     print("Submit function called");
 
-    _account.firstName = firstName;
-    _account.lastName = lastName;
-    _account.phoneNumber = phone;
+
 
 
     if (_formKey.currentState.validate()) {
       appAuth.updateAccount(email, firstName, lastName, phone).then((result) {
+        setState(() {
+          _account.firstName = firstName;
+          _account.lastName = lastName;
+          _account.phoneNumber = phone;
+        });
         if (result != true) {
           print("Error");
           Widget okButton = FlatButton(
@@ -163,7 +164,7 @@ class _AccountPageState extends State<AccountPage> {
             Card(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
                 margin: const EdgeInsets.all(20.0),
-                color: Colors.lightBlue,
+                color: getAppTheme().primaryColor,
             child: ListTile(
                   onTap: (){
                     print("Email Tapped");
@@ -186,7 +187,7 @@ class _AccountPageState extends State<AccountPage> {
           Card(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
             margin: const EdgeInsets.all(20.0),
-            color: Colors.lightBlue,
+            color: getAppTheme().primaryColor,
 //            child: ListTile(
              child: TextFormField(
                controller: _firstNameController,
@@ -230,7 +231,7 @@ class _AccountPageState extends State<AccountPage> {
             Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
               margin: const EdgeInsets.all(20.0),
-              color: Colors.lightBlue,
+              color: getAppTheme().primaryColor,
                 child: TextFormField(
                   controller: _lastNameController,
                   validator: (lastName) {
@@ -273,7 +274,7 @@ class _AccountPageState extends State<AccountPage> {
             Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
               margin: const EdgeInsets.all(20.0),
-              color: Colors.lightBlue,
+              color: getAppTheme().primaryColor,
                 child: TextFormField(
                   controller: _phoneController,
                   validator: (phone) {
@@ -313,7 +314,7 @@ class _AccountPageState extends State<AccountPage> {
               // margin: const EdgeInsets.fromLTRB(32.0, 8.0, 32.0, 16.0),
               margin: const EdgeInsets.all(20.0),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(200.0)),
-              color: Colors.blue,
+              color: getAppTheme().accentColor,
               child: Column(
                 children: <Widget>[
                   ListTile(
@@ -381,12 +382,12 @@ class _AccountPageState extends State<AccountPage> {
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: getAppTheme().primaryColor,
               ),
               child: Text(
-                'App Name',
+                'PARKR',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: getAppTheme().accentColor,
                   fontSize: 24,
                 ),
               ),
