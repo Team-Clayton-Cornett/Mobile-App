@@ -1,7 +1,6 @@
 import 'package:after_layout/after_layout.dart';
 import 'package:capstone_app/models/garage.dart';
 import 'package:capstone_app/models/park.dart';
-import 'package:capstone_app/repositories/accountRepository.dart';
 import 'package:capstone_app/repositories/garageRepository.dart';
 import 'package:capstone_app/style/appTheme.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +46,50 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
       iconTheme: IconThemeData(
           color: Colors.white
       ),
+    );
+  }
+
+  Widget _startDate(){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          "Start Date: ",
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20
+          ),
+        ),
+        Text(
+          new DateFormat.yMMMd().format(_park.start) + " " +
+              new DateFormat.jm().format(_park.start),
+          style: TextStyle(
+              fontSize: 20
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _endDate(){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          "End Date: ",
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20
+          ),
+        ),
+        Text(
+          new DateFormat.yMMMd().format(_park.end) + " " +
+              new DateFormat.jm().format(_park.end),
+          style: TextStyle(
+              fontSize: 20
+          ),
+        )
+      ],
     );
   }
 
@@ -147,12 +190,6 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
       });
     }
 
-//    Set<Marker> markers = Set();
-//    markers.add(Marker(
-//        markerId: MarkerId(_garage.name),
-//        position: _garage.location
-//    ));
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: _buildAppBar(),
@@ -174,50 +211,31 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
                 rotateGesturesEnabled: false,
               ),
             ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  "Start Date: ",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20
-                  ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                key: _bottomSheetKey,
+//                elevation: 8.0,
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Container(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        SizedBox(height: 20),
+                        _startDate(),
+                        SizedBox(height: 20),
+                        _endDate(),
+                        SizedBox(height: 20),
+                        Center(
+                            child: _ticketed == false ? _unTicketedWidget() : _ticketedWidget()
+                        )
+                      ],
+                    )
+                  )
                 ),
-                Text(
-                    new DateFormat.yMMMd().format(_park.start) + " " +
-                        new DateFormat.jm().format(_park.start),
-                    style: TextStyle(
-                      fontSize: 20
-                    ),
-                )
-              ],
+              )
             ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  "End Date: ",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20
-                  ),
-                ),
-                Text(
-                  new DateFormat.yMMMd().format(_park.end) + " " +
-                        new DateFormat.jm().format(_park.end),
-                  style: TextStyle(
-                      fontSize: 20
-                  ),
-                )
-              ],
-            ),
-            SizedBox(height: 20),
-            Center(
-                child: _ticketed == false ? _unTicketedWidget() : _ticketedWidget()
-            )
           ],
         )
       )
