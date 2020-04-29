@@ -20,6 +20,8 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
   Garage _garage;
   Park _park;
 
+  Set<Marker> markers = Set();
+
   GarageRepository _garageRepo = GarageRepository.getInstance();
   Future<List<Garage>> _garageFuture;
 
@@ -117,7 +119,6 @@ class HistoryDetailPageState extends State<HistoryDetailPage> with AfterLayoutMi
 
   @override
   Widget build(BuildContext context) {
-    Set<Marker> markers = Set();
     if (_park == null) {
       setState(() {
         _park = ModalRoute.of(context).settings.arguments;

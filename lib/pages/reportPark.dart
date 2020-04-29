@@ -78,6 +78,7 @@ class ReportParkPageState extends State<ReportParkPage> {
   if(_park == null){
     setState(() {
       _park = ModalRoute.of(context).settings.arguments;
+      _selectedDate = _park.start;
     });
   }
 
@@ -112,7 +113,7 @@ class ReportParkPageState extends State<ReportParkPage> {
                     _selectedDate = date;
                   });
                 },
-                todayButtonColor: Colors.grey[400],
+                todayButtonColor: Colors.transparent,
                 selectedDayButtonColor: getAppTheme().accentColor,
                 weekendTextStyle: TextStyle(
                     color: Colors.black
