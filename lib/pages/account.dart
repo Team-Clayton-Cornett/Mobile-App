@@ -74,6 +74,27 @@ class _AccountPageState extends State<AccountPage> {
       appAuth.updateAccount(email, firstName, lastName, phone).then((result) {
         if (result.errors != null) {
           print("Error");
+          Widget okButton = FlatButton(
+            child: Text("OK"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          );
+
+          AlertDialog alert = AlertDialog(
+            title: Text("Error"),
+            content: Text("Your settings have not been saved"),
+            actions: [
+              okButton,
+            ],
+          );
+
+          showDialog(context: context,
+            builder: (BuildContext context){
+              return alert;
+            },
+          );
+
         } else {
           Widget okButton = FlatButton(
             child: Text("OK"),
