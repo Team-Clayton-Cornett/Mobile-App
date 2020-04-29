@@ -321,6 +321,9 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               leading: Icon(Icons.account_circle),
               title: Text('Account'),
+              onTap: () {
+                Navigator.pushNamed(context, "/account");
+              }
             ),
             ListTile(
               leading: Icon(Icons.help),

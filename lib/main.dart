@@ -1,3 +1,4 @@
+import 'package:capstone_app/pages/account.dart';
 import 'package:capstone_app/pages/about.dart';
 import 'package:capstone_app/pages/filter.dart';
 import 'package:capstone_app/pages/garageDetail.dart';
@@ -56,6 +57,7 @@ class MyApp extends StatelessWidget {
         '/create_account': (context) => CreateAccountPage(),
         '/home/garage_details': (context) => GarageDetailPage(),
         '/home/filter': (context) => FilterPage(),
+        '/account': (context) => AccountPage(),
         '/about': (context) => AboutPage(),
       },
     );
