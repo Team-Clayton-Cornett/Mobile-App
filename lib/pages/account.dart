@@ -274,6 +274,7 @@ class _AccountPageState extends State<AccountPage> {
 //            child: ListTile(
               child: TextFormField(
                 controller: _firstNameController,
+
                 validator: (firstName) {
                   if (firstName.isEmpty) {
                     return 'This field is required.';
@@ -291,6 +292,9 @@ class _AccountPageState extends State<AccountPage> {
                 ),
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0)
+                  ),
                   hintText: _account.firstName,
                 ),
                 onTap: () {
@@ -335,6 +339,9 @@ class _AccountPageState extends State<AccountPage> {
                 ),
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0)
+                  ),
                   hintText: _account.lastName,
                 ),
                 onTap: () {
@@ -377,6 +384,9 @@ class _AccountPageState extends State<AccountPage> {
                 ),
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0)
+                  ),
                   hintText: _account.phoneNumber,
                 ),
                 onTap: () {
