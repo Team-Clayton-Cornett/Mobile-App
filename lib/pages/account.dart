@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:capstone_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_app/services/auth.dart';
@@ -59,20 +61,22 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   void submit() {
+//    _accountRepo.invalidateCurrentAccount();
+
     String email = _account.email;
     String firstName = _firstNameController.text;
     String lastName = _lastNameController.text;
     String phone = _phoneController.text;
     print("Submit function called");
 
-//    _account.firstName = firstName;
-//    _account.lastName = lastName;
-//    _account.phoneNumber = phone;
+    _account.firstName = firstName;
+    _account.lastName = lastName;
+    _account.phoneNumber = phone;
 
 
     if (_formKey.currentState.validate()) {
       appAuth.updateAccount(email, firstName, lastName, phone).then((result) {
-        if (result.errors != null) {
+        if (result != true) {
           print("Error");
           Widget okButton = FlatButton(
             child: Text("OK"),

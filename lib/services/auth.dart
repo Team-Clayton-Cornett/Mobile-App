@@ -33,7 +33,7 @@ class AuthService {
     }
   }
 
-  Future<AuthArguments> updateAccount(String email, String firstName, String lastName, String phone) async {
+  Future<bool> updateAccount(String email, String firstName, String lastName, String phone) async {
     Map<String, String> requestBody = new Map<String, String>();
 
     final storage = new FlutterSecureStorage();
@@ -49,10 +49,13 @@ class AuthService {
           'https://claytoncornett.tk/api/user/',
           headers: {HttpHeaders.authorizationHeader: "Token $token"}
       );
+      print(response.statusCode);
       final responseBody = jsonDecode(response.body);
+      print(requestBody);
       if (response.statusCode == 200) {
+        await AccountRepository.getInstance().getAccount();
         storage.write(key: 'auth_token', value: token);
-        return AuthArguments(token: token);
+        return true;
       } else {
         var errors = [];
         var errorKeys = [
@@ -69,9 +72,10 @@ class AuthService {
           }
         });
 
-        return AuthArguments(errors: errors);
+        return false;
       }
     }
+    return false;
   }
 
   // Login
