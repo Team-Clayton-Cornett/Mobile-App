@@ -60,6 +60,9 @@ class _HistoryPageState extends State<HistoryPage> {
       appBar: AppBar(
         title: Text("History"),
         centerTitle: false,
+        iconTheme: IconThemeData(
+            color: Colors.white
+        ),
       ),
       body: Container(
           child: FutureBuilder(
@@ -109,15 +112,18 @@ class _HistoryPageState extends State<HistoryPage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'App Name',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+            Container(
+              height: 150.0,
+              child: DrawerHeader(
+                decoration: BoxDecoration(
+                  color: getAppTheme().primaryColor,
+                ),
+                child: Text(
+                  'PARKR',
+                  style: TextStyle(
+                    color: getAppTheme().accentColor,
+                    fontSize: 24,
+                  ),
                 ),
               ),
             ),
@@ -139,7 +145,7 @@ class _HistoryPageState extends State<HistoryPage> {
               leading: Icon(Icons.history),
               title: Text('History'),
               onTap: () {
-                Navigator.of(context).pushReplacementNamed('/history');
+                Navigator.pushNamedAndRemoveUntil(context, "/history", (r) => false);
               },
             ),
             ListTile(
